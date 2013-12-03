@@ -14,6 +14,7 @@ class GamesController < ApplicationController
 
   # GET /games/new
   def setup_new
+    session[:data] ||= {}
        @game = Game.new
       @rows = session[:data]["rows"].to_i || Defaults::BOARD_SIZE_DEFAULT
        @win_chain =  session[:data]["win_chain"].to_i || Defaults::CHAIN_SIZE_DEFAULT
