@@ -2,6 +2,7 @@ require 'java'
 
 module AI
 
+
 java_import Java::Gomokuproj::Tuple
 java_import Java::Gomokuproj::Board
 java_import Java::Gomokuproj::MultiAgentSearch

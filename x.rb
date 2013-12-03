@@ -1,0 +1,2 @@
+puts "hello"
+require 'java'
