@@ -1,0 +1,38 @@
+<%= form_for(@game) do |f| %>
+  <% if @game.errors.any? %>
+    <div id="board">
+      <h2><%= pluralize(@game.errors.count, "error") %> prohibited this text from being saved:</h2>
+
+      <ul>
+      <% @game.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :rows %><br>
+   <%= f.text_field :rows %>
+  </div>
+   <div class="field">
+     <%= f.label :depth %><br>
+     <%= f.text_field :depth %>
+   </div>
+   <div class="field">
+     <%= f.label :win_chain %><br>
+     <%= f.text_field :win_chain %>
+   </div>
+   <div class="field">
+     <%= f.label :moves_considered %><br>
+     <%= f.text_field :moves_considered %>
+   </div>
+   <br>
+  <div class="actions">
+    <%= f.submit "OK" %>
+  </div>
+
+
+  Click Gomoku button <br>
+  to restart
+<% end %>

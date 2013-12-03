@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  game_id: MyString
+  : 1
+  rows: MyString
+  : 1
+  board: MyString
+  : MyString
+  current_player: MyString
+  : 
+  p1_moves: MyString
+  : MyString
+  p2_moves: MyString
+  : MyString
+
+two:
+  game_id: MyString
+  : 1
+  rows: MyString
+  : 1
+  board: MyString
+  : MyString
+  current_player: MyString
+  : 
+  p1_moves: MyString
+  : MyString
+  p2_moves: MyString
+  : MyString
