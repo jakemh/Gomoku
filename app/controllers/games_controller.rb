@@ -14,12 +14,22 @@ class GamesController < ApplicationController
 
   # GET /games/new
   def setup_new
+
+    def initVal(value, min = 0)
+      if value == nil || value <= min
+        return false
+      else return value
+      end
+
+    end
+
     session[:data] ||= {}
        @game = Game.new
-      @rows = session[:data]["rows"].to_i || Defaults::BOARD_SIZE_DEFAULT
-       @win_chain =  session[:data]["win_chain"].to_i || Defaults::CHAIN_SIZE_DEFAULT
-       @depth =  session[:data]["depth"].to_i  || Defaults::DEPTH_DEFAULT
-       @moves_considered =  session[:data]["moves_considered"].to_i  || Defaults::MOVES_CONSIDERED
+       data = session[:data]
+       @rows = initVal(data["rows"].to_i, 3) || Defaults::BOARD_SIZE_DEFAULT
+       @win_chain =  initVal(data["win_chain"].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
+       @depth =  initVal(data["depth"].to_i, 2)  || Defaults::DEPTH_DEFAULT
+       @moves_considered =  initVal(data["moves_considered"].to_i, 10) || Defaults::MOVES_CONSIDERED
        @aggressiveness
        puts "ROWS TO I: ", @rows
        # @rows = Defaults::BOARD_SIZE_DEFAULT
