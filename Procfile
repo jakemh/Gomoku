@@ -1,4 +1,1 @@
-web:                sh script/jruby -S trinidad -p $PORT
-console:        sh script/jruby script/rails console
-rake:                sh script/jruby -S rake
-jruby:                sh script/jruby
+web: bin/trinidad -t -r -p $PORT -e $RACK_ENV
