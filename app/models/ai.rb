@@ -67,8 +67,8 @@ b = Board.new(4,3)
     end
 
     m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(this_game.depth), "movesConsidered" => java.lang.Integer.new(this_game.moves_considered)})
-    # movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
-    movePair = m.bestMove(1)
+    movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
+    # movePair = m.bestMove(1)
     move = movePair.coord
     move_array = [move.x, move.y]
     print "MOVE ARRAY: ", move_array

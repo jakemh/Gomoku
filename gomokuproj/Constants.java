@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Constants {
     public static final int DEPTH_DEFAULT = 4;
-    public static final int BOARD_SIZE_DEFAULT = 8;
-    public static final int CHAIN_SIZE_DEFAULT = 3;
+    public static final int BOARD_SIZE_DEFAULT = 15;
+    public static final int CHAIN_SIZE_DEFAULT = 5;
    
     public static final int MOVES_CONSIDERED = 12;
     

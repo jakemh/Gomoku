@@ -48,7 +48,7 @@ public class MultiAgentSearch {
 //        int movesConsidered = options.get("movesConsidered");
 //        int winChain = options.get("winChain");
 //        MultiAgentSearch m = new MultiAgentSearch(b, options);
-        return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.LOSE_SCORE);
+        return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.WIN_SCORE);
     }
     
     Pair minMaxAB(Board b, int depth, int player, int alpha, int beta) {
@@ -186,7 +186,7 @@ public class MultiAgentSearch {
                  pair = new Pair(0, new Tuple((this.board.rows) / 2, (this.board.rows) / 2));
                  firstMove = false;
             } else
-               pair = this.minMaxAB(this.board, 1, player, Integer.MIN_VALUE, Integer.MAX_VALUE);
+               pair = this.minMaxAB(this.board, 1, player, -9999, 9999);
                
             System.out.println("Pair: " + pair + " expanded: " + Constants.counter);
             Constants.counter = 0;
