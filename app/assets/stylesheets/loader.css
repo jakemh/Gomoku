@@ -3,9 +3,7 @@
 position:relative;
 width:62px;
 height:77px
-
-
-        }
+}
 
 .blockG{
 position:absolute;
@@ -210,4 +208,5 @@ background-color:#000000}
 
 100%{
 background-color:transparent;
+}
 }
