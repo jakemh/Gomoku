@@ -4,7 +4,7 @@ $(document).ready(function(){
   // });
   var $blackStone, $whiteStone, $window
   $window = $(window)
-
+  var applyLoader = true
   var $board = $('.board')
   var $outer = $('.outer')
   $outer.data({"rows" :$board.attr('id')}) 
@@ -227,8 +227,7 @@ Server.prototype.getAIMove = function(path, count){
               coord = data.coord
               addWhitePiece(coord)
               enableBoard()
-              $('.spinner-holder').empty()
-              $('.loader').fadeOut()
+              removeSpinner();
             } else{
               console.log("RETURNED WRONG MOVE, KEEP CHECKING")
               server.getAIMove('/get_ai_move_retry/', count + 1)
@@ -304,6 +303,7 @@ Server.prototype.getAIMove = function(path, count){
   }
 
   var removeSpinner = function(){
+    applyLoader = false
      $('.spinner-holder').empty()
     $('.loader').fadeOut()
   }
@@ -337,8 +337,15 @@ Server.prototype.getAIMove = function(path, count){
       data: $.param(options),
       dataType: 'script',
       beforeSend: function (xhr) {
-        $('.spinner-holder').append(loaderHTML)
-        $('.loader').show()
+        applyLoader = true
+         setTimeout(function(){
+          if (applyLoader == true){
+          $('.spinner-holder').append(loaderHTML)
+
+          $('.loader').fadeIn("slow")
+        }
+        }, 300)
+       
         // xhr.setRequestHeader("Accept", "text/javascript");
         xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
       }

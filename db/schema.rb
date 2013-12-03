@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131203003946) do
+ActiveRecord::Schema.define(version: 20131203022217) do
 
   create_table "boards", force: true do |t|
     t.datetime "created_at"
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20131203003946) do
   create_table "games", force: true do |t|
     t.integer  "game_id"
     t.integer  "rows"
-    t.string   "board"
+    t.text     "board",            limit: 255
     t.integer  "current_player"
     t.string   "p2_moves"
     t.integer  "moves_considered"
