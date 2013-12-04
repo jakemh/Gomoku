@@ -1,4 +1,4 @@
 puts "hello"
 require 'java'
 
-" `bin/rails server -p $PORT -e $RAILS_ENV`"
+" `bin/rails server trinidad -p $PORT -e $RAILS_ENV`"
