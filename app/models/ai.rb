@@ -2,6 +2,7 @@ require 'java'
 
 module AI
 
+java_import Java::Java::lang::Integer
 
 java_import Java::Gomokuproj::Tuple
 java_import Java::Gomokuproj::Board
@@ -66,7 +67,12 @@ b = Board.new(4,3)
       return self.gameOver(board, 0)
     end
 
-    m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(this_game.depth), "movesConsidered" => java.lang.Integer.new(this_game.moves_considered)})
+    m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(this_game.depth), 
+                                      "movesConsidered" => java.lang.Integer.new(this_game.moves_considered),
+                                      "aggressiveness" => java.lang.Integer.new(this_game.aggressiveness),
+                                      "defensiveness" => java.lang.Integer.new(this_game.defensiveness)
+
+                                        })
     movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
     # movePair = m.bestMove(1)
     move = movePair.coord
