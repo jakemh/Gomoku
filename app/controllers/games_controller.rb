@@ -16,7 +16,7 @@ class GamesController < ApplicationController
   def setup_new
 
     def initVal(value, min = 0)
-      if value == nil || value <= min
+      if value == nil || value < min
         return false
       else return value
       end
@@ -26,11 +26,12 @@ class GamesController < ApplicationController
     session[:data] ||= {}
        @game = Game.new
        data = session[:data]
-       @rows = initVal(data["rows"].to_i, 3) || Defaults::BOARD_SIZE_DEFAULT
+       @rows = initVal(data["rows"].to_i, 1) || Defaults::BOARD_SIZE_DEFAULT
        @win_chain =  initVal(data["win_chain"].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
        @depth =  initVal(data["depth"].to_i, 2)  || Defaults::DEPTH_DEFAULT
        @moves_considered =  initVal(data["moves_considered"].to_i, 10) || Defaults::MOVES_CONSIDERED
-       @aggressiveness
+       @aggressiveness = initVal(data["aggressiveness"].to_i, 1) || Defaults::DEFENSIVENESS
+       @defensiveness =  initVal(data["defensiveness"].to_i, 1) || Defaults::AGGRESSIVENESS
        puts "ROWS TO I: ", @rows
        # @rows = Defaults::BOARD_SIZE_DEFAULT
        #        @win_chain =   Defaults::CHAIN_SIZE_DEFAULT
@@ -43,7 +44,9 @@ class GamesController < ApplicationController
         :board => Array.new(@rows){Array.new(@rows){" "}}.transpose.to_json,
         :win_chain => @win_chain, 
         :moves_considered =>  @moves_considered, 
-        :depth => @depth  })  
+        :depth => @depth, 
+        :defensiveness => @defensiveness,
+        :aggressiveness => @aggressiveness})  
 
        @game.save
        session[:game] = @game.game_id
@@ -146,7 +149,6 @@ class GamesController < ApplicationController
       session[:data] = game_params
       puts "SESSION DATA: ", session[:data]["rows"]
       if @game.update(game_params)
-        puts "UPDATED**"
         format.json { render json: @game }
       else
         format.html { render action: 'edit' }
@@ -173,6 +175,6 @@ class GamesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params
-      params[:game].permit(:rows, :depth, :moves_considered, :win_chain)
+      params[:game].permit(:rows, :depth, :moves_considered, :win_chain, :defensiveness, :aggressiveness)
     end
 end

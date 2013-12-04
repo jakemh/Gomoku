@@ -168,102 +168,6 @@ dragging  = false;
   $(".square").height($(".square").width())
 }
 
-
-Server.prototype.getAIMove = function(path, count){
-  $.ajax({
-    url: path,
-    type: 'get',
-    async: true,
-    timeout:99999999, 
-    dataType: 'json',
-    beforeSend: function(xhr) {
-      // xhr.setRequestHeader("Accept", "application/json");
-      // xhr.setRequestHeader('X-CSRF-Token');
-    }
-  }).done(function(data){
-      // hash = JSON.parse(data)
-      
-      // alert(hash.coord[1])
-
-
-    }).fail(function(data){ 
-      // alert("FAIL C")
-      // alert(data.coord[1])
-      console.log("FAIL")
-      console.log(data)
-
-      console.log(JSON.stringify(data.coord))
-      // console.log(JSON.parse(data))
-      console.log("FAIL C")
-
-    }).always(function(data, xhr, jqXHR){
-      if (window.XMLHttpRequest)
-        {
-          console.log("TEST")
-            xmlhttp = new XMLHttpRequest();
-            console.log(jqXHR.getAllResponseHeaders())
-            console.log(jqXHR)
-
-        } else{
-          console.log("WTF?")
-        }
-
-      console.log("DONE C")
-      console.log(data)
-      if (typeof data == "string"){
-        console.log("IS A STRING?")
-        // console.log("parsed string: " + JSON.parse(data))
-        console.log(data)
-      }
-      console.log("TYPE: " + typeof data)
-
-      try{
-        // alert(JSON.stringify(data))
-        console.log(JSON.stringify(data))
-        if (data != null && (data.coord != null || data["0"] != null || data["1"] != null || data["tie"] != null)){
-          if ("coord" in data){
-            console.log("not null C: " + JSON.stringify(data))
-            if (data.p2_moves.length > ((pieceArray.length - 1) / 2)){
-              coord = data.coord
-              addWhitePiece(coord)
-              enableBoard()
-              removeSpinner();
-            } else{
-              console.log("RETURNED WRONG MOVE, KEEP CHECKING")
-              server.getAIMove('/get_ai_move_retry/', count + 1)
-            }
-          
-          } else if ("0" in data){
-
-           win(data["0"])
-
-          } else if ("1" in data){
-            coord = data.winCoord
-            addWhitePiece(coord)
-            win(data["1"])
-          } else if ("tie" in data){
-            tie()
-          }
-      
-      } else{
-                console.log("data null C")
-                if (count > 30){
-                  console.log("COUNT EXCEEDED 30")
-                  return;
-                }
-                setTimeout(function() {  server.getAIMove('/get_ai_move_retry/', count + 1) }, 1000 * count / 4);
-
-      }
-      }catch (e){
-        if (e instanceof TypeError){
-          console.log("***ERROR***")
-         server.getAIMove('/get_ai_move_retry/', count + 1)
-
-        }
-      }
-    });
-  }
-
   var addPiece = function(coord, element){
 
     squareArray[coord[0]][coord[1]].append(element)
@@ -329,6 +233,7 @@ Server.prototype.getAIMove = function(path, count){
   
 
   Server.prototype.sendHumanMove = function(opt){
+    // alert("start h")
     options = opt || {}
     $.ajax({
       url: '/send_human_move/',
@@ -362,6 +267,101 @@ Server.prototype.getAIMove = function(path, count){
     });
   }
 
+  Server.prototype.getAIMove = function(path, count){
+    $.ajax({
+      url: path,
+      type: 'get',
+      async: true,
+      timeout:99999999, 
+      dataType: 'json',
+      beforeSend: function(xhr) {
+        // xhr.setRequestHeader("Accept", "application/json");
+        // xhr.setRequestHeader('X-CSRF-Token');
+      }
+    }).done(function(data){
+        // hash = JSON.parse(data)
+        
+        // alert(hash.coord[1])
+
+
+      }).fail(function(data){ 
+        // alert("FAIL C")
+        // alert(data.coord[1])
+        console.log("FAIL")
+        console.log(data)
+
+        console.log(JSON.stringify(data.coord))
+        // console.log(JSON.parse(data))
+        console.log("FAIL C")
+
+      }).always(function(data, xhr, jqXHR){
+        if (window.XMLHttpRequest)
+          {
+            console.log("TEST")
+              xmlhttp = new XMLHttpRequest();
+              console.log(jqXHR.getAllResponseHeaders())
+              console.log(jqXHR)
+
+          } else{
+            console.log("WTF?")
+          }
+
+        console.log("DONE C")
+        console.log(data)
+        if (typeof data == "string"){
+          console.log("IS A STRING?")
+          // console.log("parsed string: " + JSON.parse(data))
+          console.log(data)
+        }
+        console.log("TYPE: " + typeof data)
+
+        try{
+          // alert(JSON.stringify(data))
+          console.log(JSON.stringify(data))
+          if (data != null && (data.coord != null || data["0"] != null || data["1"] != null || data["tie"] != null)){
+            if ("coord" in data){
+              console.log("not null C: " + JSON.stringify(data))
+              if (data.p2_moves.length > ((pieceArray.length - 1) / 2)){
+                coord = data.coord
+                addWhitePiece(coord)
+                enableBoard()
+                removeSpinner();
+              } else{
+                console.log("RETURNED WRONG MOVE, KEEP CHECKING")
+                server.getAIMove('/get_ai_move_retry/', count + 1)
+              }
+            
+            } else if ("0" in data){
+
+             win(data["0"])
+
+            } else if ("1" in data){
+              coord = data.winCoord
+              addWhitePiece(coord)
+              win(data["1"])
+            } else if ("tie" in data){
+              tie()
+            }
+        
+        } else{
+                  console.log("data null C")
+                  if (count > 30){
+                    console.log("COUNT EXCEEDED 30")
+                    return;
+                  }
+                  setTimeout(function() {  server.getAIMove('/get_ai_move_retry/', count + 1) }, 1000 * count / 4);
+
+        }
+        }catch (e){
+          if (e instanceof TypeError){
+            console.log("***ERROR***")
+           server.getAIMove('/get_ai_move_retry/', count + 1)
+
+          }
+        }
+      });
+    }
+
   Server.prototype.sendOptions = function (id, opt) {
     options = opt || {}
     send_data = $(".edit_game").serialize()
@@ -388,7 +388,7 @@ Server.prototype.getAIMove = function(path, count){
       // alert("FAIL H")
       // console.log("FAIL H")
     }).always(function (data) {
-      // console.log("Done h")
+      // console.log("Done opt")
       $outer.data({"rows" : data.rows})
 
     }); 
