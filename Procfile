@@ -1,1 +1,1 @@
- web: bin/rails trinidad -p $PORT -e $RAILS_ENV
+ web:bin/trinidad --threadsafe --rackup -p $PORT -e production
