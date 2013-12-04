@@ -62,7 +62,7 @@ b = Board.new(4,3)
     if board.boardFull
       print "TIE*****"
       return {:temp_data => { :tie => true}}
-    elsif board.isWin
+    elsif board.isLose
       puts "BLACK WINS*****"
       return self.gameOver(board, 0)
     end
@@ -88,7 +88,7 @@ b = Board.new(4,3)
       if board2.boardFull
         print "TIE*****"
         return {:temp_data => { :tie => true}}
-      elsif board2.isLose
+      elsif board2.isWin
         print "WHITE WINS*****"
               return self.gameOver(board2, 1, move_array)
 
