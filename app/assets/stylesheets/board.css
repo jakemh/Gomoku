@@ -5,6 +5,23 @@ html{
 
 }
 
+*{
+		-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+p, input{
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -o-user-select: text;
+    user-select: text;
+}
+
 .outer{
 
 	position: absolute;
@@ -32,12 +49,7 @@ form{
 body{
 	padding: 0;
 	margin: 0;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+
 	background-color: #FAFAFA;
 
 }
@@ -58,12 +70,7 @@ body{
 	left:4px;
 	top: 4px;
 	opacity: .3;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+
 }
 
 .slide-left-text{
@@ -95,6 +102,11 @@ input[type=text] {
 } 
 input[type=submit]:active { 
 	background-color:rgba(0, 0, 0, .1);
+}
+
+.loading-background{
+	background:rgba(0, 0, 0, .1) !important;
+
 }
 
  input[type=submit]{ 
@@ -148,9 +160,9 @@ input[type=submit]:active {
 .highlight{
 
 
-	-webkit-box-shadow: 0px 0px 10px rgba(255, 255, 120, 0.75) !important;
-	-moz-box-shadow:    0px 0px 10px rgba(255, 255, 120, 0.75) !important;
-	box-shadow:         0px 0px 10px rgba(255, 255, 120, 0.75) !important;
+	-webkit-box-shadow: 0px 0px 20px rgba(255, 255, 120, 0.99) !important;
+	-moz-box-shadow:    0px 0px 20px rgba(255, 255, 120, 0.99) !important;
+	box-shadow:         0px 0px 20px rgba(255, 255, 120, 0.99) !important;
 
 	/*background-color: yellow !important;*/
 }

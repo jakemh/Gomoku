@@ -39,11 +39,11 @@ $(".title-cont").on("click", function(){
   newGame()
 })
 
-$(window)
-.attr('unselectable', 'on')
-.css('user-select', 'none')
-.css('MozUserSelect', 'none')
-.on('selectstart', false)
+// $(window)
+// .attr('unselectable', 'on')
+// .css('user-select', 'none')
+// .css('MozUserSelect', 'none')
+// .on('selectstart', false)
 // .on('mousedown', false); 
 
 var dragging = false;
@@ -213,10 +213,11 @@ dragging  = false;
   }
 
    Server.prototype.startNewGame  = function(){
+    $(".title-cont").addClass('loading-background')
      $.ajax({
        url: '/games/new/',
        type: 'get',
-       async: true,
+       async: false,
        dataType: 'json',
        beforeSend: function(xhr) {
          xhr.setRequestHeader("Accept", "application/json");
@@ -228,6 +229,8 @@ dragging  = false;
 
        }).fail(function(data){ 
        }).always(function(){
+        $(".title-cont").removeClass('loading-background')
+
        });
      }
   
