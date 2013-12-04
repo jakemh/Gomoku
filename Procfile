@@ -1,1 +1,1 @@
- web: bin/trinidad --threadsafe --rackup -p $PORT -e production
+ web: rails -s trinidad
