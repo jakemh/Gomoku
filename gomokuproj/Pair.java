@@ -3,7 +3,6 @@ package gomokuproj;
 public class Pair {
         int score;
         public Tuple coord;
-        
         public Pair(int score, Tuple coord){
             this.score = score;
             this.coord = coord;

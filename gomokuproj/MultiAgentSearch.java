@@ -22,47 +22,52 @@ public class MultiAgentSearch {
     int movesConsidered = Constants.MOVES_CONSIDERED;
     int maxDepth = Constants.DEPTH_DEFAULT;
     int winChain = Constants.CHAIN_SIZE_DEFAULT;
-    
-    
+    int aggressiveness = Constants.AGGRESSIVE_COEFF;
+    int defensiveness = Constants.DEFENSIVE_COEFF;
+    Map<String, Integer> options;
     public MultiAgentSearch() {
         this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
-//        this.board = Board.buildFromInput("3");
+//        this.board = Bboard.buildFromInput("3");
     }
     public MultiAgentSearch(Board b, Map<String, Integer> options) {
-            System.out.println("***MULTI: " + options.toString());
+        
+            System.out.println("VERSION: " + "0.0.0.153");
             System.out.println("***DEPTH: " + options.get("maxDepth"));
             System.out.println("***DEPTH2: " + (options.containsKey("maxDepth") ? options.get("maxDepth") : this.maxDepth));
-
 //        this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
           this.board = b;
-          
-          this.maxDepth = options.containsKey("maxDepth") ? options.get("maxDepth") : this.maxDepth;
-
-          this.movesConsidered = options.containsKey("movesConsidered") ?  options.get("movesConsidered") : this.movesConsidered;
-          this.winChain = options.containsKey("winChain") ? options.get("winChain") : this.winChain;
+          this.options = options;
+          int i = Helpers.getIfHas(options, "maxDepth", Constants.DEPTH_DEFAULT);
+          this.maxDepth = Helpers.getIfHas(options, "maxDepth", Constants.DEPTH_DEFAULT);
+         
+          this.movesConsidered = Helpers.getIfHas(options, "movesConsidered", Constants.MOVES_CONSIDERED);
+          this.winChain = Helpers.getIfHas(options, "winChain", Constants.CHAIN_SIZE_DEFAULT);
 //        this.board = Board.buildFromInput("3");
     }
     
+  
     public  Pair getBestMove(int player){
 //        int depth = options.get("depth");
 //        int movesConsidered = options.get("movesConsidered");
 //        int winChain = options.get("winChain");
 //        MultiAgentSearch m = new MultiAgentSearch(b, options);
-        return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.LOSE_SCORE);
+        return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.WIN_SCORE);
     }
     
     Pair minMaxAB(Board b, int depth, int player, int alpha, int beta) {
         if (b.isLose() || b.isWin() || depth == this.maxDepth + 1){ 
-            return new Pair(new Evaluation(b).eval(), null);
+            return new Pair(new Evaluation(b, this.options).eval(), null);
         }
         Pair val = player == b.currentPlayer ? new Pair(Integer.MIN_VALUE, null) : new Pair(Integer.MAX_VALUE, null);
 
 
 //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
-        List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered);
+        List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
+//        System.out.println(legalMoves.toString());
         for (int i = 0; i < legalMoves.size(); i++){
             Pair moveScore = legalMoves.get(i);
             Tuple move = moveScore.coord;
+           
 //        for (Tuple move : this.getLegalMoves(b)){
             Board nextState = this.getSuccessor(b, move, player);
             if (player == b.currentPlayer) {
@@ -116,23 +121,26 @@ public class MultiAgentSearch {
             @Override
             public Pair execute(Board b, Tuple c) {
                 Board tempOBoard = m.getSuccessor(b, c, player);
-                Pair pair = new Pair(new Evaluation(tempOBoard).eval(), c);
+                Pair pair = new Pair(new Evaluation(tempOBoard, m.options).eval(), c);
 //                System.out.println("pair: " + pair);
                 return pair;
             }
         });
     }
     
-    public List<Pair> topLegalMoves(Board b, int player, int quant){
+    public List<Pair> topLegalMoves(Board b, int player, int quant, int depth){
      List l = this.legalMovePairs(b, player);
-        
+           int cutVal = l.size() > quant ? quant : l.size();
+
+            if (depth == 1){
+                System.out.println("TEST: " + l.toString());
+            }
         Collections.sort(l, new Comparator<Pair>() {
             @Override
             public int compare(Pair o1, Pair o2) {
                 return o2.score - o1.score;
             }
         });
-        int cutVal = l.size() > quant ? quant  : l.size();
         if (player == b.currentPlayer){
             return l.subList(0, cutVal);
             
@@ -186,7 +194,7 @@ public class MultiAgentSearch {
                  pair = new Pair(0, new Tuple((this.board.rows) / 2, (this.board.rows) / 2));
                  firstMove = false;
             } else
-               pair = this.minMaxAB(this.board, 1, player, Integer.MIN_VALUE, Integer.MAX_VALUE);
+               pair = this.minMaxAB(this.board, 1, player, -9999, 9999);
                
             System.out.println("Pair: " + pair + " expanded: " + Constants.counter);
             Constants.counter = 0;

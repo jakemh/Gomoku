@@ -14,7 +14,7 @@ public class Board extends GameGrid {
     public int winChainLength;
     public List<Integer> largestChains = new ArrayList();
     public List<List<Chain>> chainLists = new ArrayList();
-    public int currentPlayer = 0;
+    public int currentPlayer = Constants.DEFAULT_CURRENT_PLAYER;
     public GamePiece[][] board;
     int pieceCount = 0;
 
