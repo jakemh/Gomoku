@@ -23,7 +23,8 @@ public class GomokuProj {
     static boolean webOutput = false;
     public static void main(String[] args) throws IOException {
         MultiAgentSearch m = new MultiAgentSearch();
-     
+//        Runtime.getRuntime().exec("/Users/jh/Developer/ror/gomoku/jupdate.sh");
+
         handleArgs(args);
         if (mode == null) mode = Constants.DEFAULT_MODE;
         if (mode.equals("1")) {
@@ -39,10 +40,10 @@ public class GomokuProj {
                     
                     long startTime = System.nanoTime();
                     Map<String, Integer> opt = new HashMap();
-                    Board b = Board.buildFromInput("2");
+                    Board b = Board.buildFromInput("3");
                     System.out.println("BLACK CHAINS: " + b.chainLists.get(0));
                     
-                    for (Chain c : b.sortList(b.chainLists.get(0))){
+                    for (Chain c : b.chainLists.get(0)){
                         System.out.println("Chain: " + c);
                         System.out.println("Is Winnable: " + c.isWinnable(b));
                         System.out.println("Open sides: " + c.openSides(b));

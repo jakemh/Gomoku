@@ -27,6 +27,8 @@ class GamesController < ApplicationController
        @game = Game.new
        data = session[:data]
        @rows = initVal(data["rows"].to_i, 1) || Defaults::BOARD_SIZE_DEFAULT
+       @time_limit = initVal(data["time_limit"].to_i, 3) || Defaults::TIME_LIMIT
+
        @win_chain =  initVal(data["win_chain"].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
        @depth =  initVal(data["depth"].to_i, 2)  || Defaults::DEPTH_DEFAULT
        @moves_considered =  initVal(data["moves_considered"].to_i, 10) || Defaults::MOVES_CONSIDERED
@@ -45,6 +47,7 @@ class GamesController < ApplicationController
         :win_chain => @win_chain, 
         :moves_considered =>  @moves_considered, 
         :depth => @depth, 
+        :time_limit => @time_limit,
         :defensiveness => @defensiveness,
         :aggressiveness => @aggressiveness})  
 
@@ -82,13 +85,20 @@ class GamesController < ApplicationController
       #   format.json { render json: "OK"}
       # end
   end
+
+ def force_move #validate
+
+  
+ end
+
  def send_ai_move
     # data = nil
-        Thread.new do
+        $thisThread = Thread.new do
           ActiveRecord::Base.connection_pool.with_connection do |conn|
             data = AI::calc_move(Game.find(session[:game]), session[:win_chain])
 
             puts "**DATA** : ", data
+            puts "GAME ID: ", session[:game]
             Game.find(session[:game]).update_attributes(data)
             puts "MOVE LIST: ",   data[:p2_moves]
           end
@@ -96,9 +106,16 @@ class GamesController < ApplicationController
       end
 
   def send_ai_move_retry
+    if AI.m
+      if params["force"] == "true"
+      puts "*****^*^*^*^*^****FORCE MOVE"
+      puts AI.m
+      AI.m.forceTimeExpire
+      end
+    end
     @move = get_move
     if @move != false
-
+      # $thisThread.join
       # respond_to do |format|
       #   format.json { render json: move}
       # end
@@ -109,13 +126,20 @@ class GamesController < ApplicationController
     end
   end
   def get_move
-     m = Game.find(session[:game]).temp_data
+    game = Game.find(session[:game])
+     m = game.temp_data
+     backup = game.backup_move
+
+     puts "ALL: ", game.inspect
+
      if m != nil
       puts "M: ", m
-      # return JSON.parse(m)
       return m
+    elsif backup != nil
+      print "M IS NULL STILL BUT BACKUP IS READY"
+      return backup
     else 
-      print "M IS NULL STILL"
+      print "EVERYTHING IS NIL STILL"
       return false
     end
   end
@@ -147,7 +171,7 @@ class GamesController < ApplicationController
       # session[:win_chain] = game_params[:win_chain] || @win_chain
 
       session[:data] = game_params
-      puts "SESSION DATA: ", session[:data]["rows"]
+      puts "SESSION DATA: ", session[:data]
       if @game.update(game_params)
         format.json { render json: @game }
       else
@@ -175,6 +199,6 @@ class GamesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params
-      params[:game].permit(:rows, :depth, :moves_considered, :win_chain, :defensiveness, :aggressiveness)
+      params[:game].permit(:time_limit, :rows, :depth, :moves_considered, :win_chain, :defensiveness, :aggressiveness)
     end
 end

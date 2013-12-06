@@ -25,21 +25,21 @@ public class MultiAgentSearch {
     int aggressiveness = Constants.AGGRESSIVE_COEFF;
     int defensiveness = Constants.DEFENSIVE_COEFF;
     Map<String, Integer> options;
+    
     public MultiAgentSearch() {
         this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
 //        this.board = Bboard.buildFromInput("3");
     }
     public MultiAgentSearch(Board b, Map<String, Integer> options) {
         
-            System.out.println("VERSION: " + "0.0.0.153");
-            System.out.println("***DEPTH: " + options.get("maxDepth"));
-            System.out.println("***DEPTH2: " + (options.containsKey("maxDepth") ? options.get("maxDepth") : this.maxDepth));
+           System.out.println("VERSION: " + "0.0.0.153");
+            System.out.println("***options***: " + options.toString());
+            
+            
 //        this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
           this.board = b;
           this.options = options;
-          int i = Helpers.getIfHas(options, "maxDepth", Constants.DEPTH_DEFAULT);
           this.maxDepth = Helpers.getIfHas(options, "maxDepth", Constants.DEPTH_DEFAULT);
-         
           this.movesConsidered = Helpers.getIfHas(options, "movesConsidered", Constants.MOVES_CONSIDERED);
           this.winChain = Helpers.getIfHas(options, "winChain", Constants.CHAIN_SIZE_DEFAULT);
 //        this.board = Board.buildFromInput("3");
@@ -87,7 +87,24 @@ public class MultiAgentSearch {
                 beta = Math.min(beta, v.score);
             }
         }
-        
+        if (depth == 1) {
+            System.out.println(b.chainLists.get(0));
+            System.out.println(b.chainLists.get(1));
+
+            for (Chain c0 : b.chainLists.get(0)) {
+                System.out.println("Chain: " + c0);
+                System.out.println("Is Winnable: " + c0.isWinnable(b));
+                System.out.println("Open sides: " + c0.openSides(b));
+
+            }
+
+            for (Chain c1 : b.chainLists.get(1)) {
+                System.out.println("Chain: " + c1);
+                System.out.println("Is Winnable: " + c1.isWinnable(b));
+                System.out.println("Open sides: " + c1.openSides(b));
+
+            }
+        }
         if (val.coord == null) val.score = 0;
 //        System.out.println("val: " + val);
         return val;
@@ -151,8 +168,7 @@ public class MultiAgentSearch {
             
         }
     }
-    
-    public List legalMoves(Board b, MoveType f) {
+     public List legalMoves(Board b, MoveType f) {
         List moves = new ArrayList();
         for (int i = 0; i < b.rows; i++) {
             for (int j = 0; j < b.rows; j++) {
@@ -165,6 +181,19 @@ public class MultiAgentSearch {
 
         return moves;
     }
+    
+//    public List legalMoves(Board b, MoveType f) {
+//        List moves = new ArrayList();
+//        for (int i = b.relevantRange[0]; i < b.relevantRange[2]; i++) {
+//            for (int j =  b.relevantRange[1]; j <  b.relevantRange[3]; j++) {
+//                GamePiece p = b.board[i][j];
+//                if (b.spaceIsEmpty(new Tuple(i, j))) {
+//                    moves.add(f.execute(b, new Tuple(i, j)));
+//                }
+//            }
+//        }
+//        return moves;
+//    }
     
      public List<Tuple> getLegalMoves(Board b){
        return (List<Tuple>)this.legalMoves(b, new MoveType() {

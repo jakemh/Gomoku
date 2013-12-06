@@ -15,7 +15,12 @@ $(document).ready(function(){
   var loaderContainerHTML = '<div class="loader"> <div class="spinner-holder"></div></div>'
   var loaderHTML = '<div id="floatingBarsG"><div class="blockG" id="rotateG_01"></div><div class="blockG" id="rotateG_02"></div><div class="blockG" id="rotateG_03"></div><div class="blockG" id="rotateG_04"></div><div class="blockG" id="rotateG_05"></div><div class="blockG" id="rotateG_06"></div><div class="blockG" id="rotateG_07"></div><div class="blockG" id="rotateG_08"></div></div>'
   Server = function(){}
+  Game = function(){}
   var server = new Server()
+  var game = new Game()
+  var backupMove;
+  var terminateGetAI = false;
+  var forceMove = false;
   var makeMove = function(){
         // $(this).css('background-color', '#C3E6E4');
         // $(this).addClass('black-stone');
@@ -35,10 +40,13 @@ $(document).ready(function(){
 
   // $(".square").on("click", _.debounce(makeMove, 100))
 
-$(".title-cont").on("click", function(){
+$(".title").on("click", function(){
   newGame()
 })
-
+$(".force-move").on("click", function(){
+  forceMove = true;
+  $('.force-move').addClass('loading-background')
+})
 // $(window)
 // .attr('unselectable', 'on')
 // .css('user-select', 'none')
@@ -53,9 +61,32 @@ var $slider = $(".slide-left")
   var moveLeft = 0;  // The two variables define the distance
   var moveDown = 0;
 
+var timer;
+var elapsed;
+
 var resetGame = function(){
 
   newGame()
+}
+
+var startTimer = function(callback){
+  var start = new Date().getTime(),
+      elapsed = '0.0';
+
+  timer = window.setInterval(function()
+  {
+      var time = new Date().getTime() - start;
+
+      elapsed = Math.floor(time ) / 1000;
+      if(Math.round(elapsed) == elapsed) { elapsed += '.0'; }
+
+      callback(elapsed);
+  }, 1000);
+}
+
+var endTimer = function(){
+ window.clearInterval(timer);
+
 }
 
 var boardEmpty = function(){
@@ -135,7 +166,6 @@ dragging  = false;
 		// var varWidth = max($(window).width() * .7, $(window).height());
 		var varWidth = Math.min($window.height() * .7, $window.width() * .7);
    $(".square").width(varWidth / numRows)
-
    $(".square").height($(".square").width())
    // $(".slide-left").css('left',$(window).width() - slideMenuWidth);
 
@@ -169,7 +199,7 @@ dragging  = false;
 }
 
   var addPiece = function(coord, element){
-
+    backupMove = null;
     squareArray[coord[0]][coord[1]].append(element)
     pieceArray.push(element)
   }
@@ -207,9 +237,12 @@ dragging  = false;
   }
 
   var removeSpinner = function(){
+    endTimer()
     applyLoader = false
      $('.spinner-holder').empty()
     $('.loader').fadeOut()
+    $('.force-move').fadeOut()
+
   }
 
    Server.prototype.startNewGame  = function(){
@@ -234,7 +267,37 @@ dragging  = false;
        });
      }
   
+  var appendForceButton = function(){
+    $('.force-move').removeClass('loading-background')
 
+    $('.force-move').css({
+        opacity: 0,
+        display: 'inline-block'     
+    }).animate({opacity:1},600);
+  }
+
+  var startSpinner = function(){
+    terminateGetAI = false;
+
+      if (applyLoader == true){
+      startTimer(function(elapsed){
+        console.log(elapsed)
+        if (elapsed > 5){
+
+          // alert("5 seconds")
+    if ($('.force-move').css('display') == "none"){
+        appendForceButton()
+      }
+        } else if (elapsed > 10){
+          terminateGetAI = true;
+
+          terminateGetAI = true;
+        }
+      })
+      $('.spinner-holder').append(loaderHTML)
+      $('.loader').fadeIn("slow")
+    }
+  }
   Server.prototype.sendHumanMove = function(opt){
     // alert("start h")
     options = opt || {}
@@ -247,11 +310,7 @@ dragging  = false;
       beforeSend: function (xhr) {
         applyLoader = true
          setTimeout(function(){
-          if (applyLoader == true){
-          $('.spinner-holder').append(loaderHTML)
-
-          $('.loader').fadeIn("slow")
-        }
+          startSpinner()
         }, 300)
        
         // xhr.setRequestHeader("Accept", "text/javascript");
@@ -271,15 +330,17 @@ dragging  = false;
   }
 
   Server.prototype.getAIMove = function(path, count){
+    opt = {force : forceMove}
     $.ajax({
       url: path,
-      type: 'get',
+      type: 'put',
       async: true,
+      data: $.param(opt),
       timeout:99999999, 
       dataType: 'json',
       beforeSend: function(xhr) {
         // xhr.setRequestHeader("Accept", "application/json");
-        // xhr.setRequestHeader('X-CSRF-Token');
+        xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
       }
     }).done(function(data){
         // hash = JSON.parse(data)
@@ -321,8 +382,17 @@ dragging  = false;
         try{
           // alert(JSON.stringify(data))
           console.log(JSON.stringify(data))
-          if (data != null && (data.coord != null || data["0"] != null || data["1"] != null || data["tie"] != null)){
+          if (terminateGetAI){
+            console.log("***TERMINATED***")
+            addWhitePiece(data.backup)
+            enableBoard()
+            removeSpinner();
+            return false;
+
+          }
+          if (data != null && (data.backup != null || data.coord != null || data["0"] != null || data["1"] != null || data["tie"] != null)){
             if ("coord" in data){
+
               console.log("not null C: " + JSON.stringify(data))
               if (data.p2_moves.length > ((pieceArray.length - 1) / 2)){
                 coord = data.coord
@@ -334,7 +404,12 @@ dragging  = false;
                 server.getAIMove('/get_ai_move_retry/', count + 1)
               }
             
-            } else if ("0" in data){
+            } else if ("backup" in data){
+              backupMove = data.backup
+              console.log("BACKUP MOVE: " + backupMove)
+              setTimeout(function() {  server.getAIMove('/get_ai_move_retry/', count + 1) }, 1000 * count / 4);
+
+            }else if ("0" in data){
 
              win(data["0"])
 
@@ -364,6 +439,7 @@ dragging  = false;
         }
       });
     }
+
 
   Server.prototype.sendOptions = function (id, opt) {
     options = opt || {}

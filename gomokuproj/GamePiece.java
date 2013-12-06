@@ -18,7 +18,7 @@ public class GamePiece {
 //    public Map<Tuple, GamePiece> adjHash = new HashMap(8);
     Set<Tuple> adjSet = new HashSet<>();
     
-    Set<Tuple> adjSetOpp = new HashSet<>();
+//    Set<Tuple> adjSetOpp = new HashSet<>();
 
     public GamePiece(Tuple coord, int player){
         this.coord = coord;
@@ -31,24 +31,11 @@ public class GamePiece {
         this.player = piece.player;
 //        this.adjSet = piece.adjSet;
         this.adjSet.addAll(piece.adjSet);
-        this.adjSetOpp.addAll(piece.adjSetOpp);
-
-//        this.adjHash = new HashMap(8);
-//        this.adjHash = piece.adjHash;
+//        this.adjSetOpp.addAll(piece.adjSetOpp);
         this.maxChain = piece.maxChain;
     }
-    public List<GamePiece> connections = new ArrayList(8);
-//    Tuple[] connections = new Tuple[8];
-//    public void addAdj(int index, Tuple coord){
-//        this.connections.
-//    }
-    
-//    public GamePiece copy(){
-//        GamePiece thisPiece = new GamePiece(this.coord, this.player);
-//        
-//        thisPiece.adjHash = this.adjHash;
-//        thisPiece.maxChain = this.maxChain;
-//        return this;
+//    public List<GamePiece> connections = new ArrayList(8);
+
 //    }
     @Override
     public String toString() {

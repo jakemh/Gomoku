@@ -20,7 +20,12 @@ public class Board extends GameGrid {
 
     public GamePiece lastPiece;
     public Board parent;
-
+    Tuple middle;
+    int rangeLimit = 2;
+//    int[] relevantRange = {-rangeLimit,rangeLimit,-rangeLimit,rangeLimit};
+//    Tuple[] relevantRange = {new Tuple(-rangeLimit, -rangeLimit), new Tuple(rangeLimit, rangeLimit)};
+    int[] relevantRange = new int[4];
+    
     Board(int winChainLength) {
         this.chainLists.add(new ArrayList(5));
         this.chainLists.add(new ArrayList(5));
@@ -31,18 +36,42 @@ public class Board extends GameGrid {
         this(winChainLength);
         this.rows = rows;
         this.board = this.transpose(this.makeBoard(rows));
+        this.middle = new Tuple(this.rows / 2 + 1, this.rows / 2 + 1);
 
     }
+    void setRelevantRangeOriginal(Tuple coord){
+        relevantRange[0] = Math.max(-rangeLimit + coord.x,0);
+        relevantRange[1] = Math.max(-rangeLimit + coord.y,0);
+        relevantRange[2] = Math.min(rangeLimit + coord.x, this.rows);
+        relevantRange[3] = Math.min(rangeLimit + coord.y, this.rows);
+    }
+    public void setRelevantRange(Tuple coord){
+//        System.out.println("PRE: " + Arrays.toString(this.relevantRange));
+//        System.out.println("COORD: " + coord);
+        int rl = this.rangeLimit;
+        int range = 4;
+        Tuple min = new Tuple(this.relevantRange[0], this.relevantRange[1]);
+        Tuple max = new Tuple(this.relevantRange[2], this.relevantRange[3]);
+        
+        if (coord.x < min.x + range) this.relevantRange[0] = Math.max(coord.x - rl, 0);
+        if (coord.x > max.x - range) this.relevantRange[2] = Math.min(coord.x + rl, this.rows);
+        if (coord.y < min.y + range) this.relevantRange[1] = Math.max(coord.y - rl,0);
+        if (coord.y > max.y - range) this.relevantRange[3] =  Math.min(coord.y + rl, this.rows);
+//        System.out.println("POST: " + Arrays.toString(this.relevantRange));
 
+        
+    }
+    
     public Board(final Board grid) {
         GamePiece[][] deepCopy = new GamePiece[grid.board.length][grid.board[0].length];
         this.board = deepCopy;
         this.currentPlayer = grid.currentPlayer;
-
         for (List l : grid.chainLists) {
             this.chainLists.add(new ArrayList(l));
         }
+        this.pieceCount = grid.pieceCount;
 
+        this.relevantRange = Arrays.copyOf(grid.relevantRange, 4);
         for (int i = 0; i < deepCopy.length; i++) {
             for (int j = 0; j < deepCopy.length; j++) {
                 if (!grid.spaceIsEmpty(new Tuple(i, j))) {
@@ -216,7 +245,12 @@ public class Board extends GameGrid {
             this.lastPiece = p;
 
             b[coord.x][coord.y] = p;
-            
+            if (this.pieceCount == 0){
+                this.setRelevantRangeOriginal(p.coord);
+//                System.out.println("RANGE: " + Arrays.toString(this.relevantRange));
+            }
+            setRelevantRange(p.coord);
+
             this.pieceCount += 1;
             
             Tuple orig = coord;
@@ -230,8 +264,8 @@ public class Board extends GameGrid {
 
                 } else if (this.hasPiece(b, newCoord, (player + 1) % 2)) {
                     GamePiece touchedP = getPieceAt(newCoord);
-                    p.adjSetOpp.add(touchedP.coord);
-                    touchedP.adjSetOpp.add(p.coord);
+//                    p.adjSetOpp.add(touchedP.coord);
+//                    touchedP.adjSetOpp.add(p.coord);
                 }
             }
             this.checkChain(p, player);

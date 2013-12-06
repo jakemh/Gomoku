@@ -4,22 +4,23 @@ module AI
 
 java_import Java::Java::lang::Integer
 
-java_import Java::Gomokuproj::Tuple
-java_import Java::Gomokuproj::Board
-java_import Java::Gomokuproj::MultiAgentSearch
-java_import Java::Gomokuproj::Constants
+@m = nil
 
-a = java.util.ArrayList.new [:a, :b, "c", "d"]
-tup = Tuple.new(2, 0)
+def self.m
+  @m
+end 
 
-a.add(tup)
-puts a  # => [a, b, c, d, e, #<Fun:0x6e511470>, test]
+VERSION = 2
 
-b = []
-# board = Board.buildFromInput("3")
-# print board.print
-b = Board.new(4,3)
-# b.print
+if VERSION == 1
+  java_import Java::Gomokuproj::Board
+  java_import Java::Gomokuproj::MultiAgentSearch
+  java_import Java::Gomokuproj::Constants
+elsif VERSION == 2
+  java_import Java::Gomokuproj2::Board
+  java_import Java::Gomokuproj2::MultiAgentSearch
+  java_import Java::Gomokuproj2::Constants
+end
 
 	def self.to_a_2D(array)
 		array = array.to_a
@@ -39,7 +40,7 @@ b = Board.new(4,3)
 
   def self.gameOver(board, player, move = nil)
     json_chain = []
-    chain = board.chainLists.get(player).get(0).getPieceCoords(board)
+    chain = board.sortList(board.chainLists.get(player)).get(0).getPieceCoords(board)
     chain.to_ary.each do |c|
       json_chain.push([c.x, c.y]) # transpose
     end
@@ -49,7 +50,7 @@ b = Board.new(4,3)
     # [2,4]
     return_data = nil
     # this_game = Game.find(session[:game])
-    this_game.update_attributes(:temp_data => nil)
+    this_game.update_attributes({:temp_data => nil, :backup_move => nil})
 
     p2_moves_json = this_game.p2_moves || "[]"
     p2_moves = JSON.parse(p2_moves_json)
@@ -67,15 +68,54 @@ b = Board.new(4,3)
       return self.gameOver(board, 0)
     end
 
-    m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(this_game.depth), 
+    movePair = nil
+    backupPair = nil
+    backupMove = nil
+    # thisThread = nil
+
+     backupMoveThread =  Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+        m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(4), 
+                                          "movesConsidered" => java.lang.Integer.new(this_game.moves_considered),
+                                          "aggressiveness" => java.lang.Integer.new(this_game.aggressiveness),
+                                          "defensiveness" => java.lang.Integer.new(this_game.defensiveness)
+
+                                            })
+        backupPair = m.minMaxAB(board, 1, 1, -999999, 999999)
+        backupMove = [backupPair.coord.x, backupPair.coord.y]
+        puts "*$*DONE*$* ", backupMove
+
+        this_game.update_attributes({:backup_move => {:backup => backupMove}.to_json})
+        end
+      end
+    @m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(this_game.depth), 
                                       "movesConsidered" => java.lang.Integer.new(this_game.moves_considered),
                                       "aggressiveness" => java.lang.Integer.new(this_game.aggressiveness),
-                                      "defensiveness" => java.lang.Integer.new(this_game.defensiveness)
+                                      "defensiveness" => java.lang.Integer.new(this_game.defensiveness),
+                                      "timeLimit" =>  java.lang.Integer.new(this_game.time_limit)
 
                                         })
-    movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
+    # movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
+    movePair = @m.minMaxWithTimer(board, 1, 1, -99999, 99999)
+    puts "*$*ALSO*$* ", movePair
+    if @m.didTimeExpire == true
+      if backupMoveThread.alive?
+        puts "***JOINING***"
+        backupMoveThread.join
+      else
+        puts "***BMT DEAD***"
+
+      end
+      movePair = backupPair
+      puts "**TIME EXPIRED**"
+      if backupPair == nil
+        puts "*X*X*X*X*X BACKUP MOVE NOT READY*X*X*X*X*X*"
+      end
+    else puts "TIME DID NOT EXPIRE"
+    end
     # movePair = m.bestMove(1)
     move = movePair.coord
+    puts ""
     move_array = [move.x, move.y]
     print "MOVE ARRAY: ", move_array
     score = movePair.score
@@ -98,6 +138,7 @@ b = Board.new(4,3)
 
     return { :board => board0.to_json, 
       :p2_moves => p2_moves.push(move_array).to_json, 
+      
       :temp_data => { :coord => move_array,
                        :score => score, 
                         :p2_moves => p2_moves}.to_json}
