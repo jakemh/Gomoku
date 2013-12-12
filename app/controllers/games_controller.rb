@@ -92,7 +92,10 @@ class GamesController < ApplicationController
       end
 
   def send_ai_move_retry
+    print "PARAMS: ", params
+
     if AI.m
+      print "PARAMS: ", params
       if params["force"] == "true"
       puts "*****^*^*^*^*^****FORCE MOVE"
       # puts AI.m

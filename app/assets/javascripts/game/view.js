@@ -4,7 +4,6 @@ var View = function (delegate) {
   var _this = this;
   var loaderContainerHTML = '<div class="loader"> <div class="spinner-holder"></div></div>';
   var loaderHTML = '<div id="floatingBarsG"><div class="blockG" id="rotateG_01"></div><div class="blockG" id="rotateG_02"></div><div class="blockG" id="rotateG_03"></div><div class="blockG" id="rotateG_04"></div><div class="blockG" id="rotateG_05"></div><div class="blockG" id="rotateG_06"></div><div class="blockG" id="rotateG_07"></div><div class="blockG" id="rotateG_08"></div></div>';
-  var timer;
 
   /* public variables */
   this.textBox = $('.info-box');
@@ -15,6 +14,7 @@ var View = function (delegate) {
   this.applyLoader = true;
   this.squareArray = [];
   this.forceMove = false;
+  this.timer = null;
 
    this.$outer.data({
      "rows": _this.$board.attr('id')
@@ -92,7 +92,10 @@ var View = function (delegate) {
 
 
   this.removeSpinner = function () {
-    timer.endTimer();
+    if (this.timer != null){
+      this.timer.endTimer();
+      this.timer = null;
+    }
     _this.applyLoader = false;
     $('.spinner-holder').empty();
     $('.loader').fadeOut();
@@ -110,9 +113,9 @@ var View = function (delegate) {
   };
 
   this.startSpinner = function () {
-    timer = new Timer();
+    this.timer = new Timer();
     if (_this.applyLoader === true) {
-      timer.startTimer(function (elapsed) {
+      this.timer.startTimer(function (elapsed) {
         console.log(elapsed);
         if (elapsed > 5) {
 

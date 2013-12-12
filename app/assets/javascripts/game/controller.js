@@ -1,7 +1,7 @@
 GameController = function () {
 	var _this = this;
 	var view, board, menu;
-	var id = null;
+	var ajax = new Ajax();
 
 	var ViewDelegate;
 	ViewDelegate = function () {};
@@ -15,7 +15,6 @@ GameController = function () {
 
 	}
 	
-	var ajax = new Ajax();
 
 /************
 view requires: 
@@ -29,14 +28,19 @@ view requires:
 		game = new Game();
 		board.clearPieces()
 		board.enable()
+	
 		view.clearMenuTextBox();
-		view.addTitleButtonLoadBackground();
 		_this.startNewGame();
+		view.removeSpinner();
 		view.$board.empty();
 		view.squareArray = new Array(board.getRows());
 		view.renderBoard(board.getRows());
 		view.addLoader();
 	};
+
+	ViewDelegate.prototype.forceMoveButton = function(){
+		view.forceMove = true;
+	}
 
 	ViewDelegate.prototype.makeMove = function () {
 		if (board.active() === true) {

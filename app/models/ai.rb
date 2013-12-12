@@ -83,7 +83,7 @@ end
 
                                             })
         # backupPair = m.minMaxAB(board, 1, 1, -999999, 999999)
-        movePair = m.negaMaxWithTimer(board_copy, 1, 1, -99999, 999999)
+        backupPair = m.negaMaxWithTimer(board_copy, 1, 1, -99999, 999999)
 
         backupMove = [backupPair.coord.x, backupPair.coord.y]
         print "Backup move:", backupMove

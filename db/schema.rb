@@ -11,17 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131206211722) do
+ActiveRecord::Schema.define(version: 20131212150828) do
 
   create_table "games", force: true do |t|
     t.integer  "game_id"
     t.integer  "rows"
     t.text     "board"
     t.integer  "current_player"
-    t.string   "p2_moves"
     t.integer  "moves_considered"
     t.integer  "depth"
-    t.string   "temp_data"
     t.integer  "win_chain"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -29,6 +27,8 @@ ActiveRecord::Schema.define(version: 20131206211722) do
     t.integer  "defensiveness"
     t.string   "backup_move"
     t.integer  "time_limit"
+    t.text     "temp_data"
+    t.text     "p2_moves"
   end
 
 end
