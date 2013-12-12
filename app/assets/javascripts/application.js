@@ -11,5 +11,16 @@
 // about supported directives.
 //
 //= require turbolinks
-//= require jquery
-//= require_tree .
+//=require_directory ./jquery
+//=require ./underscore
+//=require ./game/ajax
+//=require ./game/timer
+//=require ./game/game
+//=require ./game/controller
+//=require ./game/view-delegate
+//=require ./game/board
+//=require ./game/menu
+//=require ./game/view
+//=require ./game/init
+
+ 

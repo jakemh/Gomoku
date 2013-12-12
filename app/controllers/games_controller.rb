@@ -1,4 +1,5 @@
 class GamesController < ApplicationController
+  include GamesHelper
   before_action :set_game, only: [:show, :edit, :update, :destroy]
 
   # GET /games
@@ -15,14 +16,6 @@ class GamesController < ApplicationController
   # GET /games/new
   def setup_new
 
-    def initVal(value, min = 0)
-      if value == nil || value < min
-        return false
-      else return value
-      end
-
-    end
-
     session[:data] ||= {}
        @game = Game.new
        data = session[:data]
@@ -34,12 +27,6 @@ class GamesController < ApplicationController
        @moves_considered =  initVal(data["moves_considered"].to_i, 10) || Defaults::MOVES_CONSIDERED
        @aggressiveness = initVal(data["aggressiveness"].to_i, 1) || Defaults::DEFENSIVENESS
        @defensiveness =  initVal(data["defensiveness"].to_i, 1) || Defaults::AGGRESSIVENESS
-       puts "ROWS TO I: ", @rows
-       # @rows = Defaults::BOARD_SIZE_DEFAULT
-       #        @win_chain =   Defaults::CHAIN_SIZE_DEFAULT
-       #        @depth =  Defaults::DEPTH_DEFAULT
-       #        @moves_considered =  Defaults::MOVES_CONSIDERED
-       # session["data"] ||= {}
        games = Game.all
        @game = Game.new({:game_id => (Game.all.length + 1), 
         :rows =>  @rows, 
@@ -81,9 +68,7 @@ class GamesController < ApplicationController
     if (game.update_attributes(:board => board.to_json))
       # send_ai_move
     end
-      # respond_to do |format|
-      #   format.json { render json: "OK"}
-      # end
+
   end
 
  def force_move #validate
@@ -94,13 +79,14 @@ class GamesController < ApplicationController
  def send_ai_move
     # data = nil
         $thisThread = Thread.new do
+          t1 = Time.now.to_f
           ActiveRecord::Base.connection_pool.with_connection do |conn|
             data = AI::calc_move(Game.find(session[:game]), session[:win_chain])
-
-            puts "**DATA** : ", data
-            puts "GAME ID: ", session[:game]
-            Game.find(session[:game]).update_attributes(data)
-            puts "MOVE LIST: ",   data[:p2_moves]
+            game = Game.find(session[:game])
+            game.update_attributes(data)
+            t2 = Time.now.to_f
+            printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
+            printf "\n%s", game.inspect
           end
         end
       end
@@ -109,38 +95,29 @@ class GamesController < ApplicationController
     if AI.m
       if params["force"] == "true"
       puts "*****^*^*^*^*^****FORCE MOVE"
-      puts AI.m
-      AI.m.forceTimeExpire
+      # puts AI.m
+      AI.m.forceTimeExpire # java method to unwind minimax calls
       end
     end
     @move = get_move
+
     if @move != false
-      # $thisThread.join
       # respond_to do |format|
       #   format.json { render json: move}
       # end
     else
       respond_to do |format|
-        format.json { render json: {:update => "**still processing move**"} }
+        format.json { render json: {:status => "processing"}}
       end
     end
   end
+  
   def get_move
     game = Game.find(session[:game])
-     m = game.temp_data
-     backup = game.backup_move
-
-     puts "ALL: ", game.inspect
-
-     if m != nil
-      puts "M: ", m
+    m = game.temp_data
+    if m != nil
       return m
-    elsif backup != nil
-      print "M IS NULL STILL BUT BACKUP IS READY"
-      return backup
-    else 
-      print "EVERYTHING IS NIL STILL"
-      return false
+    else return false
     end
   end
   # GET /games/1/edit
@@ -166,16 +143,17 @@ class GamesController < ApplicationController
   # PATCH/PUT /games/1
   # PATCH/PUT /games/1.json
   def update
+    puts params
     respond_to do |format|
       # session[:rows] = game_params[:rows] || @rows
       # session[:win_chain] = game_params[:win_chain] || @win_chain
 
       session[:data] = game_params
-      puts "SESSION DATA: ", session[:data]
+      print "SESS: ", session[:data]
+      # puts "SESSION DATA: ", session[:data]
       if @game.update(game_params)
         format.json { render json: @game }
       else
-        format.html { render action: 'edit' }
         format.json { render json: @game.errors, status: :unprocessable_entity }
       end
     end

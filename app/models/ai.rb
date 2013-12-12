@@ -44,7 +44,8 @@ end
     chain.to_ary.each do |c|
       json_chain.push([c.x, c.y]) # transpose
     end
-    return { :temp_data => { player.to_s => json_chain, "winCoord" => move}.to_json }
+    return { :temp_data => {:status => player == 0 ? "black_winner" : "white_winner", :chain => json_chain, :win_coord => move,
+                             :finalBoard => board.printS}.to_json }
   end
 	def self.calc_move(this_game, win_chain)
     # [2,4]
@@ -60,11 +61,11 @@ end
     board0 = JSON.parse(this_game.board)
 
     board = self.array_grid_to_board_obj(board0, win_chain)
+    board_copy = Board.new(board)
     if board.boardFull
       print "TIE*****"
-      return {:temp_data => { :tie => true}}
-    elsif board.isLose
-      puts "BLACK WINS*****"
+      return {:temp_data => { :tie => true, :status => "tie"}}
+    elsif board.isLose      
       return self.gameOver(board, 0)
     end
 
@@ -75,15 +76,17 @@ end
 
      backupMoveThread =  Thread.new do
         ActiveRecord::Base.connection_pool.with_connection do |conn|
-        m = MultiAgentSearch.new(board, {"maxDepth" => java.lang.Integer.new(4), 
+        m = MultiAgentSearch.new(board_copy, {"maxDepth" => java.lang.Integer.new(4), 
                                           "movesConsidered" => java.lang.Integer.new(this_game.moves_considered),
                                           "aggressiveness" => java.lang.Integer.new(this_game.aggressiveness),
                                           "defensiveness" => java.lang.Integer.new(this_game.defensiveness)
 
                                             })
-        backupPair = m.minMaxAB(board, 1, 1, -999999, 999999)
+        # backupPair = m.minMaxAB(board, 1, 1, -999999, 999999)
+        movePair = m.negaMaxWithTimer(board_copy, 1, 1, -99999, 999999)
+
         backupMove = [backupPair.coord.x, backupPair.coord.y]
-        puts "*$*DONE*$* ", backupMove
+        print "Backup move:", backupMove
 
         this_game.update_attributes({:backup_move => {:backup => backupMove}.to_json})
         end
@@ -96,8 +99,9 @@ end
 
                                         })
     # movePair = m.minMaxAB(board, 1, 1, -999999, 999999)
-    movePair = @m.minMaxWithTimer(board, 1, 1, -99999, 99999)
-    puts "*$*ALSO*$* ", movePair
+    # movePair = @m.minMaxWithTimer(board, 1, 1, -99999, 99999)
+    movePair = @m.negaMaxWithTimer(board, 1, 1, -99999, 999999)
+    print "*$*move pair*$* ", movePair
     if @m.didTimeExpire == true
       if backupMoveThread.alive?
         puts "***JOINING***"
@@ -111,15 +115,12 @@ end
       if backupPair == nil
         puts "*X*X*X*X*X BACKUP MOVE NOT READY*X*X*X*X*X*"
       end
-    else puts "TIME DID NOT EXPIRE"
+    # else puts "TIME DID NOT EXPIRE"
     end
     # movePair = m.bestMove(1)
     move = movePair.coord
-    puts ""
     move_array = [move.x, move.y]
-    print "MOVE ARRAY: ", move_array
     score = movePair.score
-    print "SCORE: ", score
     board0[move_array[0]][move_array[1]] = "O"
     # return_data = 
     # this_game.update_attributes({:board => board0.to_json, :temp_data => move_array.to_json})
@@ -141,7 +142,8 @@ end
       
       :temp_data => { :coord => move_array,
                        :score => score, 
-                        :p2_moves => p2_moves}.to_json}
+                        :p2_moves => p2_moves,
+                        :status => "complete"}.to_json}
   end
 
 end

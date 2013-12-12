@@ -10,8 +10,8 @@ public class Constants {
 
     
     
-    public static final int DEPTH_DEFAULT = 8;
-    public static final int BOARD_SIZE_DEFAULT = 15;
+    public static final int DEPTH_DEFAULT =  4;
+    public static final int BOARD_SIZE_DEFAULT = 19;
     public static final int CHAIN_SIZE_DEFAULT = 5;
     public static final int DEFAULT_CURRENT_PLAYER = 1;
     public static final int MOVES_CONSIDERED = 12;

@@ -389,7 +389,24 @@ public class Board extends GameGrid {
             System.out.print("\n");
         }
     }
-    
+    public String printS() {
+        String s = "";
+        for (GamePiece[] row : this.transpose(getBoard())) {
+            for (GamePiece c : row) {
+                if (c instanceof GamePiece) {
+                    if (c.player == 0) {
+                        s+=("[" + Constants.p1 + "]");
+                    } else {
+                        s+=("[" + Constants.p2 + "]");
+                    }
+                } else {
+                    s+=("[" + " " + "]");
+                }
+            }
+            s+=("\n");
+        }
+        return s;
+    }
     public int getPieceCount(){
         return this.pieceCount;
     }

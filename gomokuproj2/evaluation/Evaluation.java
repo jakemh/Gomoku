@@ -30,7 +30,7 @@ public class Evaluation extends Heuristic {
     @Override /** @return **/
     public int onEvaluate() {
         
-        this.returnVal -= this.evalTopChains(b.p2(), true) * 2;
+        this.returnVal -= this.evalTopChains(b.p2(), true) * 6;
         this.returnVal += this.evalTopChains(b.p1(), false) * Constants.AGGRESSIVE_COEFF;
 //       this.returnVal -= (proxToCenter());
         return this.returnVal;

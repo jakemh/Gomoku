@@ -44,14 +44,14 @@ public class GomokuProj2 {
                     long startTime = System.nanoTime();
                     Map<String, Integer> opt = new HashMap();
                     Board b = Board.buildFromInput("3");
-                    System.out.println("BLACK CHAINS: " + b.chainLists.get(0));
-                    
-                    for (Chain c : b.chainLists.get(0)){
-                        System.out.println("Chain: " + c);
-                        System.out.println("Is Winnable: " + c.isWinnable(b));
-                        System.out.println("Open sides: " + c.openSides(b));
-
-                    }
+//                    System.out.println("BLACK CHAINS: " + b.chainLists.get(0));
+//                    
+//                    for (Chain c : b.chainLists.get(0)){
+//                        System.out.println("Chain: " + c);
+//                        System.out.println("Is Winnable: " + c.isWinnable(b));
+//                        System.out.println("Open sides: " + c.openSides(b));
+//
+//                    }
 //                    System.out.println("WHITE CHAINS: " + b.chainLists.get(1));
                     
                     final MultiAgentSearch testM = new MultiAgentSearch(b, opt);
@@ -65,11 +65,16 @@ public class GomokuProj2 {
                             i++;
                             if (i > 60)
                                 testM.timesUp = true;
-                            System.out.println("TEST TIMER: " + i);
+//                            System.out.println("TEST TIMER: " + i);
                         }
                     }, 0, 1000);
-                    System.out.println("MOVE: " + testM.minMaxAB(b, 1, 1, -9999, 9999));
-                    b.print();
+//                    System.out.println("MINI MOVE: " + testM.minMaxAB(b, 1, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE));
+//            System.out.println("NEGA MOVE: " + testM.negaMax(b, 1, 1,  -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
+//           
+            System.out.println("NEGA MOVE: " + testM.negaMaxWithTimer(b, 1, 1,  -Integer.MAX_VALUE, Integer.MAX_VALUE));
+//            System.out.println("NEGASCOUT MOVE: " + testM.negaScout(b, 1, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
+
+//                    System.out.println(b.printS());
                     long stopTime = System.nanoTime();
 
             System.out.println("Duration: " + (stopTime - startTime) / (double) Constants.NANO_SECONDS_IN_SECOND + " seconds");

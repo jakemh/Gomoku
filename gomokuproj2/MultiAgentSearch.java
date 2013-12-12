@@ -38,7 +38,7 @@ public class MultiAgentSearch {
     public MultiAgentSearch(Board b, Map<String, Integer> options) {
         
            System.out.println("VERSION: " + "0.0.0.155");
-            System.out.println("***options***: " + options.toString());
+//            System.out.println("***options***: " + options.toString());
             
             
 //        this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
@@ -61,7 +61,7 @@ public class MultiAgentSearch {
         return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.WIN_SCORE);
     }
     
-    public Pair minMaxWithTimer(Board b, int depth, int player, int alpha, int beta){
+    public Pair negaMaxWithTimer(Board b, int depth, int player, int alpha, int beta){
         final MultiAgentSearch _this = this;
         final Timer uploadCheckerTimer = new Timer(true);
         uploadCheckerTimer.scheduleAtFixedRate(
@@ -73,17 +73,39 @@ public class MultiAgentSearch {
                         if (i > _this.timeLimit) {
                             _this.timesUp = true;
                             uploadCheckerTimer.cancel();
-                            System.out.println("TIMER FINISHED: " + i);
+//                            System.out.println("TIMER FINISHED: " + i);
 
                         }
-                        System.out.println("TEST TIMER: " + i + " Timelimit: " + _this.timeLimit);
+//                        System.out.println("TEST TIMER: " + i + " Timelimit: " + _this.timeLimit);
+                    }
+                }, 0, 1000);
+//       Pair returnVal = this.minMaxAB(b, 1, 1, -9999, 9999);
+        Pair returnVal = (Pair)this.negaMax(b, 1, 1, -9999, 9999, 1);
+        uploadCheckerTimer.cancel();
+        return returnVal;
+    } 
+      public Pair minMaxWithTimer(Board b, int depth, int player, int alpha, int beta){
+        final MultiAgentSearch _this = this;
+        final Timer uploadCheckerTimer = new Timer(true);
+        uploadCheckerTimer.scheduleAtFixedRate(
+                new TimerTask() {
+                    int i = 0;
+
+                    public void run() {
+                        i++;
+                        if (i > _this.timeLimit) {
+                            _this.timesUp = true;
+                            uploadCheckerTimer.cancel();
+//                            System.out.println("TIMER FINISHED: " + i);
+
+                        }
+//                        System.out.println("TEST TIMER: " + i + " Timelimit: " + _this.timeLimit);
                     }
                 }, 0, 1000);
        Pair returnVal = this.minMaxAB(b, 1, 1, -9999, 9999);
         uploadCheckerTimer.cancel();
         return returnVal;
     } 
-    
     public boolean didTimeExpire(){
         return this.timesUp;
     }
@@ -92,6 +114,100 @@ public class MultiAgentSearch {
          this.timesUp = true;
     }
     
+    public Object negaMax(Board b, int depth, int player, int alpha, int beta, int color){
+        if (b.isLose() || b.isWin() || depth == this.maxDepth + 1 || this.timesUp) {
+            return new Evaluation(b, this.options).eval() * color;
+        }
+        
+        int bestVal = Integer.MIN_VALUE;
+        Tuple bestMove = null;
+        //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
+        List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
+//        System.out.println(legalMoves.toString());
+//        List<Tuple> legalMoves = this.getLegalMoves(b);
+
+        for (int i = 0; i < legalMoves.size(); i++) {
+            Pair moveScore = legalMoves.get(i);
+            Tuple move = moveScore.coord;
+//            Tuple move = legalMoves.get(i);
+            Board nextState = this.getSuccessor(b, move, player);
+
+            int val = -(int)negaMax(nextState, depth + 1, (player + 1) % 2, -beta, -alpha, -color);
+            if (val > bestVal ){
+                bestVal = val;
+                if (player == b.currentPlayer)
+                bestMove = move;
+            }
+            alpha = Math.max(alpha, val);
+            if (alpha >= beta ){
+                break;
+            }
+        }
+        if (depth == 1){
+            if (bestMove == null) {
+                bestVal = 0;
+                bestMove = this.getLegalMoves(b).get(0);
+                System.out.println("*CHOOSING RANDOM MOVE FROM NEGAMAX*");
+            }
+
+//            System.out.println("NEGAMAX MOVE: " + bestMove);
+            return new Pair(bestVal, bestMove);
+        }
+        
+        return bestVal;
+    }
+    
+     public Object negaScout(Board b, int depth, int player, int alpha, int beta, int color){
+        if (b.isLose() || b.isWin() || depth == this.maxDepth + 1 || this.timesUp) {
+            return new Evaluation(b, this.options).eval() * color;
+        }
+        
+        int bestVal = Integer.MIN_VALUE;
+        Tuple bestMove = null;
+        //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
+        List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
+//        System.out.println(legalMoves.toString());
+//        List<Tuple> legalMoves = this.getLegalMoves(b);
+        for (int i = 0; i < legalMoves.size(); i++) {
+            Pair moveScore = legalMoves.get(i);
+            Tuple move = moveScore.coord;
+//            Tuple move = legalMoves.get(i);
+            int score;
+            Board nextState = this.getSuccessor(b, move, player);
+            if (i != 0){
+                score = -(int)negaScout(nextState, depth + 1, (player + 1) % 2, -alpha - 1, -alpha, -color);
+                if (alpha < score && score < beta){
+                    score = -(int)negaScout(nextState, depth + 1, (player + 1) % 2, -beta, -alpha, -color);
+
+                }
+            }else{
+                score = -(int)negaScout(nextState, depth + 1, (player + 1) % 2, -beta, -alpha, -color);
+            }
+            if (score > alpha){
+                alpha = score;
+                if (player == b.currentPlayer){
+                    bestMove = move;
+                }
+            }
+            
+            if (alpha >= beta){
+                break;
+            }
+        }
+         if (depth == 1){
+            if (bestMove == null) {
+                alpha = 0;
+                bestMove = this.getLegalMoves(b).get(0);
+                System.out.println("*CHOOSING RANDOM MOVE FROM NEGAMAX*");
+            }
+
+//            System.out.println("NEGAMAX MOVE: " + bestMove);
+            return new Pair(alpha, bestMove);
+        }
+        
+         return alpha;
+    }
+     
     Pair minMaxAB(Board b, int depth, int player, int alpha, int beta) {
      
         if (b.isLose() || b.isWin() || depth == this.maxDepth + 1 || this.timesUp){ 
@@ -103,10 +219,12 @@ public class MultiAgentSearch {
 //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
         List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
 //        System.out.println(legalMoves.toString());
+//        List<Tuple> legalMoves = this.getLegalMoves(b);
+
         for (int i = 0; i < legalMoves.size(); i++){
             Pair moveScore = legalMoves.get(i);
             Tuple move = moveScore.coord;
-           
+//           Tuple move = legalMoves.get(i);
 //        for (Tuple move : this.getLegalMoves(b)){
             Board nextState = this.getSuccessor(b, move, player);
             if (player == b.currentPlayer) {
@@ -130,7 +248,7 @@ public class MultiAgentSearch {
         }
         
         if (depth == 1){
-            System.out.println("RANGE: " + Arrays.toString(b.relevantRange));
+//            System.out.println("RANGE: " + Arrays.toString(b.relevantRange));
 //                System.out.println(b.chainLists.get(0));
 //                System.out.println(b.chainLists.get(1));
 //
@@ -197,7 +315,7 @@ public class MultiAgentSearch {
            int cutVal = l.size() > quant ? quant : l.size();
 
             if (depth == 1){
-                System.out.println("TEST: " + l.toString());
+//                System.out.println("TEST: " + l.toString());
             }
         Collections.sort(l, new Comparator<Pair>() {
             @Override
@@ -244,6 +362,7 @@ public class MultiAgentSearch {
     public void playSelf(){
         int player = 0, pieceCount = 0;
         boolean firstMove = true;
+        this.board.currentPlayer = 0;
         while (true) {
             if (this.board.isWin() || this.board.isLose()) {
                 System.out.println("WINNER!");
@@ -257,13 +376,17 @@ public class MultiAgentSearch {
             Pair pair;
             if (firstMove){
                  pair = new Pair(0, new Tuple((this.board.rows) / 2, (this.board.rows) / 2));
+//                move =  new Tuple((this.board.rows) / 2, (this.board.rows) / 2);
                  firstMove = false;
             } else
-               pair = this.minMaxAB(this.board, 1, player, -9999, 9999);
-               
-            System.out.println("Pair: " + pair + " expanded: " + Constants.counter);
+//               pair = this.minMaxAB(this.board, 1, player, -9999, 9999);
+                  pair = (Pair)this.negaMax(this.board, 1, player, -99999, 99999, 1);
+//                  pair = (Pair)this.negaScout(this.board, 1, player, -99999, 99999, 1);
+
+                System.out.println("Pair: " + pair + " expanded: " + Constants.counter);
             Constants.counter = 0;
             this.board.addPiece(pair.coord, player);
+//            this.board.addPiece(move, player);
             this.board.print();
             player = (player + 1) % 2;
             this.board.currentPlayer = player;
