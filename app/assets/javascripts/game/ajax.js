@@ -29,7 +29,6 @@ Ajax = function () {
 	}
 
 	Ajax.prototype.sendOptions = function(id, send_data){
-		alert(send_data)
 		return $.ajax({
 			url: '/games/' + id + '/update',
 			type: 'put',
@@ -37,7 +36,6 @@ Ajax = function () {
 			data: send_data,
 			// dataType: 'json',
 			beforeSend: function (xhr) {
-
 				// xhr.setRequestHeader("Accept", "application/json");
 				xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
 			}

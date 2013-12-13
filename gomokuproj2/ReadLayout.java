@@ -10,9 +10,9 @@ public class ReadLayout {
     
     public ReadLayout(){}
     
-    public String[] getLayout() throws IOException {
+    public String[] getLayout(String path) throws IOException {
         ReadFile rf = new ReadFile();
-        String[] lines = rf.readLines(Constants.FILE_PATH + fileName);
+        String[] lines = rf.readLines(path + fileName);
         return lines;
 
     }

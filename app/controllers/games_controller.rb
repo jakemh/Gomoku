@@ -30,7 +30,7 @@ class GamesController < ApplicationController
        games = Game.all
        @game = Game.new({:game_id => (Game.all.length + 1), 
         :rows =>  @rows, 
-        :board => Array.new(@rows){Array.new(@rows){" "}}.transpose.to_json,
+        :board => Array.new(@rows){Array.new(@rows){" "}}.transpose,
         :win_chain => @win_chain, 
         :moves_considered =>  @moves_considered, 
         :depth => @depth, 
@@ -62,10 +62,13 @@ class GamesController < ApplicationController
 
     move = params["coord"]
     game = Game.find(session[:game])
-    board = JSON.parse(game.board)
+    # puts "game: ", game.board
+    # board = game.board
+    puts game.board.class
+    board = game.board
     board[move[0].to_i][move[1].to_i] = "X"
     # puts board
-    if (game.update_attributes(:board => board.to_json))
+    if (game.update_attributes(:board => board))
       # send_ai_move
     end
 
@@ -77,11 +80,14 @@ class GamesController < ApplicationController
  end
 
  def send_ai_move
+  game0 = Game.find(session[:game])
+  game0.update_attributes({:temp_data => nil, :backup_move => nil, :status => "pending"})
+
     # data = nil
         $thisThread = Thread.new do
           t1 = Time.now.to_f
           ActiveRecord::Base.connection_pool.with_connection do |conn|
-            data = AI::calc_move(Game.find(session[:game]), session[:win_chain])
+            data = AI::game_data(game0, session[:win_chain], )
             game = Game.find(session[:game])
             game.update_attributes(data)
             t2 = Time.now.to_f
@@ -94,15 +100,15 @@ class GamesController < ApplicationController
   def send_ai_move_retry
     print "PARAMS: ", params
 
-    if AI.m
+    if AI.mainMultiAgent #on background thread
       print "PARAMS: ", params
       if params["force"] == "true"
       puts "*****^*^*^*^*^****FORCE MOVE"
       # puts AI.m
-      AI.m.forceTimeExpire # java method to unwind minimax calls
+      AI.mainMultiAgent.forceTimeExpire # java method to unwind minimax calls
       end
     end
-    @move = get_move
+    @move = get_move.to_json
 
     if @move != false
       # respond_to do |format|
@@ -117,11 +123,12 @@ class GamesController < ApplicationController
   
   def get_move
     game = Game.find(session[:game])
-    m = game.temp_data
-    if m != nil
-      return m
-    else return false
+    # m = game.temp_data
+    if game.status != "pending"
+      m = {:board => game.board, :win_chain_array => game.win_chain_array, :p2_moves => game.p2_moves, :coord => game.p2_moves.last, :score => game.white_score, :status => game.status}
     end
+    return m if m != nil
+    return false
   end
   # GET /games/1/edit
   def edit
@@ -152,7 +159,6 @@ class GamesController < ApplicationController
       # session[:win_chain] = game_params[:win_chain] || @win_chain
 
       session[:data] = game_params
-      print "SESS: ", session[:data]
       # puts "SESSION DATA: ", session[:data]
       if @game.update(game_params)
         format.json { render json: @game }

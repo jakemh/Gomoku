@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131212150828) do
+ActiveRecord::Schema.define(version: 20131213002328) do
 
   create_table "games", force: true do |t|
     t.integer  "game_id"
@@ -29,6 +29,9 @@ ActiveRecord::Schema.define(version: 20131212150828) do
     t.integer  "time_limit"
     t.text     "temp_data"
     t.text     "p2_moves"
+    t.integer  "white_score"
+    t.string   "status"
+    t.text     "win_chain_array"
   end
 
 end

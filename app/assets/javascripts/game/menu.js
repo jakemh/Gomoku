@@ -1,4 +1,4 @@
-var Menu = function () {
+var Menu = function (delegate) {
   var $window = $(window);
 
   var dragging = false;
@@ -31,7 +31,7 @@ var Menu = function () {
 
   $window.on("resize", function () {
     var varWidth = Math.min($window.height() * 0.7, $window.width() * 0.7);
-    $(".square").width(varWidth / numRows);
+    $(".square").width(varWidth / delegate.numRows);
     $(".square").height($(".square").width());
     // $(".slide-left").css('left',$(window).width() - slideMenuWidth);
 

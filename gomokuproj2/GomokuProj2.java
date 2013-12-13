@@ -39,11 +39,17 @@ public class GomokuProj2 {
 
             System.out.println(m.board.chainLists.get(0).get(0).getPieceCoords(m.board));
         } else if (mode.equals("4")) {
-            
+                
                     
                     long startTime = System.nanoTime();
                     Map<String, Integer> opt = new HashMap();
-                    Board b = Board.buildFromInput("3");
+                    opt.put("maxDepth", 4);
+                    opt.put("movesConsidered", 12);
+                    opt.put("aggressiveness", 1);
+                    opt.put("defensiveness", 1);
+                    opt.put("timeLimit", 15);
+                   
+                    Board b = Board.buildFromInput("src/gomokuproj2/input/", "3");
 //                    System.out.println("BLACK CHAINS: " + b.chainLists.get(0));
 //                    
 //                    for (Chain c : b.chainLists.get(0)){

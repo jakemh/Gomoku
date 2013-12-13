@@ -6,8 +6,8 @@ public class GameGrid {
     public int rows;
     public Tuple center = new Tuple(this.rows / 2, this.rows / 2);
    
- static Board buildFromInput(String layout) {
-        String[] b = layout(layout);
+ static Board buildFromInput(String path, String layout) {
+        String[] b = layout(path, layout);
         Board b2 = new Board(b.length, Constants.CHAIN_SIZE_DEFAULT);
         gridFromStringArray(b, b2);
        return b2;
@@ -40,10 +40,10 @@ public class GameGrid {
      }
  }
  
-    static String[] layout(String map) {
+    static String[] layout(String path,String map) {
         String[] layout = null;
         try {
-            layout = new ReadLayout(map).getLayout();
+            layout = new ReadLayout(map).getLayout(path);
         } catch (java.io.IOException e) {
             System.err.println("Error: " + e.getMessage());
         }

@@ -10,7 +10,7 @@ GameController = function () {
 		_this.delegate = new ViewDelegate();
 		view = new View(_this.delegate);
 		board = new Board();
-		menu = new Menu();
+		menu = new Menu(_this.delegate);
 		board.setRows($(".outer").data("rows"));
 
 	}
@@ -160,15 +160,15 @@ this.getAIMove = function (path, count) {
 
 	this.aiMoveCallback = function (data, count) {
 		xmlhttp = new XMLHttpRequest();
-		try {
 			if (data !== null) {
-				if ("status" in data){
+				console.log(data);
+				if (data["status"] !== undefined){
 					var status = data["status"];
 					console.log(status)
 					// view.textBox.text(status + "\n" + view.textBox.val())
-					if (status == "complete"){
-						_this.checkMoveCount(data, function(){
-							_this.addWhitePiece( data.coord);
+					if (status == "in_progress"){
+						_this.checkMoveCount(data, count, function(){
+							_this.addWhitePiece(data.coord);
 							board.enable();
 							view.removeSpinner();
 							view.textBox.text("White: " + JSON.stringify(data.coord) + "\n" + view.textBox.val())		
@@ -179,10 +179,10 @@ this.getAIMove = function (path, count) {
 					}else if (status == "established"){
 						_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
 					}else if (status == "black_winner"){
-						view.win(data["chain"]);
+						view.win(data["win_chain_array"]);
 					}else if (status == "white_winner"){
-						_this.addWhitePiece(data.win_coord);
-						view.win(data["chain"]);
+						_this.addWhitePiece(data.coord);
+						view.win(data["win_chain_array"]);
 					}else if (status == "tie"){
 						view.removeSpinner();
 					}else if (status == "error"){
@@ -190,22 +190,16 @@ this.getAIMove = function (path, count) {
 					}
 				} else {
 					console.log("data does not provide a status")
+					_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
+
 				}
 			} else { // data is null
 				console.log("data null");
 				_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
 			}
-		} catch (e) {
-			if (e instanceof TypeError) {
-				console.log(e)
-				console.log("***ERROR***");
-				console.log(data);
-				_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
-			}
-		}
 	};
 
-	this.checkMoveCount = function(data, callback){
+	this.checkMoveCount = function(data, count, callback){
 		if (data.p2_moves.length > ((board.moveCount() - 1) / 2)) {
 			callback()
 		} else {
