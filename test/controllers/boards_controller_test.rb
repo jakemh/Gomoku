@@ -5,41 +5,41 @@ class BoardsControllerTest < ActionController::TestCase
     @board = boards(:one)
   end
 
-  test "should get index" do
+  test 'should get index' do
     get :index
     assert_response :success
     assert_not_nil assigns(:boards)
   end
 
-  test "should get new" do
+  test 'should get new' do
     get :new
     assert_response :success
   end
 
-  test "should create board" do
+  test 'should create board' do
     assert_difference('Board.count') do
-      post :create, board: {  }
+      post :create, board: {}
     end
 
     assert_redirected_to board_path(assigns(:board))
   end
 
-  test "should show board" do
+  test 'should show board' do
     get :show, id: @board
     assert_response :success
   end
 
-  test "should get edit" do
+  test 'should get edit' do
     get :edit, id: @board
     assert_response :success
   end
 
-  test "should update board" do
-    patch :update, id: @board, board: {  }
+  test 'should update board' do
+    patch :update, id: @board, board: {}
     assert_redirected_to board_path(assigns(:board))
   end
 
-  test "should destroy board" do
+  test 'should destroy board' do
     assert_difference('Board.count', -1) do
       delete :destroy, id: @board
     end

@@ -15,13 +15,15 @@ var View = function (delegate) {
   this.squareArray = [];
   this.forceMove = false;
   this.timer = null;
-
+  $window = $(window)
    this.$outer.data({
      "rows": _this.$board.attr('id')
    });
 
   $(".title").on("click", function () {
+    if ($(".title").data("isDragging") != true){
     delegate.newGame();
+  }
   });
 
   $(".force-move").on("click", function () {
@@ -30,7 +32,13 @@ var View = function (delegate) {
     $('.force-move').addClass('loading-background');
   });
 
+  $(window).on("resize", function () {
+    var varWidth = Math.min($window.height() * 0.7, $window.width() * 0.7);
+    $(".square").width(varWidth / delegate.getRows());
+    $(".square").height($(".square").width());
+    // $(".slide-left").css('left',$(window).width() - slideMenuWidth);
 
+  });
   this.addLoader = function(){
     $('.board').append(loaderContainerHTML);
   }
@@ -117,6 +125,12 @@ var View = function (delegate) {
     if (_this.applyLoader === true) {
       this.timer.startTimer(function (elapsed) {
         console.log(elapsed);
+        if (elapsed > 1 && _this.applyLoader === true){
+          $('.spinner-holder').append(loaderHTML);
+          $('.loader').fadeIn("slow");
+          _this.applyLoader = false;
+        }
+
         if (elapsed > 5) {
 
           // alert("5 seconds")
@@ -126,8 +140,7 @@ var View = function (delegate) {
         }
       });
 
-      $('.spinner-holder').append(loaderHTML);
-      $('.loader').fadeIn("slow");
+      
     }
   };
 

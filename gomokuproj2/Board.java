@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +26,8 @@ public class Board extends GameGrid {
     public GamePiece lastPiece;
     public Board parent;
     int heuristicCache;
-    
+    Set<Tuple> relevantMoves = new HashSet<>();
+
     Board(int winChainLength) {
         this.chainLists.add(new ArrayList(5));
         this.chainLists.add(new ArrayList(5));
@@ -45,6 +48,8 @@ public class Board extends GameGrid {
         this.pieceCount = grid.pieceCount;
 
         this.relevantRange = Arrays.copyOf(grid.relevantRange, 4);
+        this.relevantMoves.addAll(grid.relevantMoves);
+
         for (List l : grid.chainLists) {
             this.chainLists.add(new ArrayList(l));
         }
@@ -253,7 +258,24 @@ public class Board extends GameGrid {
 //
 //        return this.addPiece(coord, player);
 //    }
-
+    
+    public void addToMoveList(Tuple coord){
+        Tuple[] coords = new Tuple[2];
+        Tuple lowerLeft = coords[0];
+        Tuple upperRight = coords[1];
+        lowerLeft = new Tuple(Math.max(-rangeLimit + coord.x, 0), Math.max(-rangeLimit + coord.y,0));
+        upperRight = new Tuple(Math.min(rangeLimit + coord.x, this.rows - 1), Math.min(rangeLimit + coord.y, this.rows - 1));
+        
+        for (int i = lowerLeft.x; i <= upperRight.x; i++){
+            for (int j = lowerLeft.y; j <= upperRight.y; j++){
+//                 System.out.println("Coord: " + new Tuple(i,j));
+                this.relevantMoves.add(new Tuple(i,j));
+            }
+        }
+        //get coords inside square
+        
+    }
+    
     public GamePiece addPiece(Tuple coord, int player) {
         GamePiece[][] b = this.board;
         if (this.spaceIsEmpty(coord)) {
@@ -261,6 +283,8 @@ public class Board extends GameGrid {
             this.lastPiece = p;
 
                b[coord.x][coord.y] = p;
+               this.addToMoveList(p.coord);
+
             if (this.pieceCount == 0){
                 this.setRelevantRangeOriginal(p.coord);
 //                System.out.println("RANGE: " + Arrays.toString(this.relevantRange));
@@ -371,7 +395,23 @@ public class Board extends GameGrid {
         }
         return grid;
     }
-    
+    public void printNoTrans() {
+
+        for (GamePiece[] row : getBoard()) {
+            for (GamePiece c : row) {
+                if (c instanceof GamePiece) {
+                    if (c.player == 0) {
+                        System.out.print("[" + Constants.p1 + "]");
+                    } else {
+                        System.out.print("[" + Constants.p2 + "]");
+                    }
+                } else {
+                    System.out.print("[" + " " + "]");
+                }
+            }
+            System.out.print("\n");
+        }
+    }
     public void print() {
 
         for (GamePiece[] row : this.transpose(getBoard())) {

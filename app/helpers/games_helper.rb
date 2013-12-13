@@ -6,4 +6,11 @@ module GamesHelper
 	  end
 
 	end
+
+	def time_expired?(params)
+	  if params["force"] == "true"
+	    puts "**FORCE MOVE**"
+	    return true
+	  end
+	end
 end

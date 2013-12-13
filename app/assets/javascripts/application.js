@@ -20,6 +20,8 @@
 //=require ./game/view-delegate
 //=require ./game/board
 //=require ./game/menu
+//=require ./game/slider
+
 //=require ./game/view
 //=require ./game/init
 

@@ -335,7 +335,7 @@ public class MultiAgentSearch {
     }
     
    
-      public List legalMoves(Board b, MoveType f) {
+      public List legalMoves2(Board b, MoveType f) {
         List moves = new ArrayList();
         for (int i = b.relevantRange[0]; i < b.relevantRange[2]; i++) {
             
@@ -348,6 +348,17 @@ public class MultiAgentSearch {
         }
         return moves;
     }
+    public List legalMoves(Board b, MoveType f) {
+        List moves = new ArrayList();
+        for (Tuple coord : b.relevantMoves){
+            if (b.spaceIsEmpty(coord)) {
+                moves.add(f.execute(b, coord));
+            }
+        }
+        
+        return moves;
+    }
+    
     
      public List<Tuple> getLegalMoves(Board b){
        return (List<Tuple>)this.legalMoves(b, new MoveType() {

@@ -77,8 +77,8 @@ public class GomokuProj2 {
 //                    System.out.println("MINI MOVE: " + testM.minMaxAB(b, 1, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE));
 //            System.out.println("NEGA MOVE: " + testM.negaMax(b, 1, 1,  -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
 //           
-            System.out.println("NEGA MOVE: " + testM.negaMaxWithTimer(b, 1, 1,  -Integer.MAX_VALUE, Integer.MAX_VALUE));
-//            System.out.println("NEGASCOUT MOVE: " + testM.negaScout(b, 1, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
+//            System.out.println("NEGA MOVE: " + testM.negaMaxWithTimer(b, 1, 1,  -Integer.MAX_VALUE, Integer.MAX_VALUE));
+            System.out.println("NEGASCOUT MOVE: " + testM.negaScout(b, 1, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
 
 //                    System.out.println(b.printS());
                     long stopTime = System.nanoTime();

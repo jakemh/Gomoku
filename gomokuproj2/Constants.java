@@ -10,11 +10,11 @@ public class Constants {
 
     
     
-    public static final int DEPTH_DEFAULT = 1;
+    public static final int DEPTH_DEFAULT = 6;
     public static final int BOARD_SIZE_DEFAULT = 19;
     public static final int CHAIN_SIZE_DEFAULT = 5;
     public static final int DEFAULT_CURRENT_PLAYER = 1;
-    public static final int MOVES_CONSIDERED = 12;
+    public static final int MOVES_CONSIDERED = 100;
     public static final int TIME_LIMIT = 30;
     
     public static final String p1 = "X";

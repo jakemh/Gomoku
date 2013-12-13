@@ -15,118 +15,93 @@ class GamesController < ApplicationController
 
   # GET /games/new
   def setup_new
-
     session[:data] ||= {}
-       @game = Game.new
-       data = session[:data]
-       @rows = initVal(data["rows"].to_i, 1) || Defaults::BOARD_SIZE_DEFAULT
-       @time_limit = initVal(data["time_limit"].to_i, 3) || Defaults::TIME_LIMIT
+    data = session[:data]
+    @rows = initVal(data['rows'].to_i, 1) || Defaults::BOARD_SIZE_DEFAULT
+    @time_limit = initVal(data['time_limit'].to_i, 3) || Defaults::TIME_LIMIT
 
-       @win_chain =  initVal(data["win_chain"].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
-       @depth =  initVal(data["depth"].to_i, 2)  || Defaults::DEPTH_DEFAULT
-       @moves_considered =  initVal(data["moves_considered"].to_i, 10) || Defaults::MOVES_CONSIDERED
-       @aggressiveness = initVal(data["aggressiveness"].to_i, 1) || Defaults::DEFENSIVENESS
-       @defensiveness =  initVal(data["defensiveness"].to_i, 1) || Defaults::AGGRESSIVENESS
-       games = Game.all
-       @game = Game.new({:game_id => (Game.all.length + 1), 
-        :rows =>  @rows, 
-        :board => Array.new(@rows){Array.new(@rows){" "}}.transpose,
-        :win_chain => @win_chain, 
-        :moves_considered =>  @moves_considered, 
-        :depth => @depth, 
-        :time_limit => @time_limit,
-        :defensiveness => @defensiveness,
-        :aggressiveness => @aggressiveness})  
+    @win_chain =  initVal(data['win_chain'].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
+    @depth =  initVal(data['depth'].to_i, 2)  || Defaults::DEPTH_DEFAULT
+    @moves_considered =  initVal(data['moves_considered'].to_i, 10) || Defaults::MOVES_CONSIDERED
+    @aggressiveness = initVal(data['aggressiveness'].to_i, 1) || Defaults::DEFENSIVENESS
+    @defensiveness =  initVal(data['defensiveness'].to_i, 1) || Defaults::AGGRESSIVENESS
+    games = Game.all
+    @game = Game.new({ game_id: (Game.all.length + 1),
+                      rows: @rows,
+                      board: Array.new(@rows) { Array.new(@rows) { ' ' } }.transpose,
+                      win_chain: @win_chain,
+                      moves_considered: @moves_considered,
+                      depth: @depth,
+                      time_limit: @time_limit,
+                      defensiveness: @defensiveness,
+                      aggressiveness: @aggressiveness })
 
-       @game.save
-       session[:game] = @game.game_id
+    @game.save
+    session[:game] = @game.game_id
        # session[:data] = {}
        session[:data][:move_num] = 0
 
        session[:win_chain] = @win_chain
-  end
+     end
 
-  def new
-    setup_new
-    respond_to do |format|
-      format.json { render json: @game, status: :created }
+     def new
+      setup_new
+      respond_to do |format|
+        format.json { render json: @game, status: :created }
+      end
+
     end
-
-  end
 
 
   def receive_human_move
-    if params["newGame"] == "true"
-      setup_new_game
-    end
+    setup_new_game if params['newGame'] == 'true'
 
-    move = params["coord"]
-    game = Game.find(session[:game])
-    # puts "game: ", game.board
-    # board = game.board
-    puts game.board.class
-    board = game.board
-    board[move[0].to_i][move[1].to_i] = "X"
-    # puts board
-    if (game.update_attributes(:board => board))
-      # send_ai_move
-    end
-
+    move = params['coord']
+    Game.find(session[:game]).add_x_at_coord([move[0], move[1]])
   end
 
- def force_move #validate
+ def force_move
 
-  
+
  end
 
  def send_ai_move
   game0 = Game.find(session[:game])
-  game0.update_attributes({:temp_data => nil, :backup_move => nil, :status => "pending"})
+  game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
 
-    # data = nil
-        $thisThread = Thread.new do
-          t1 = Time.now.to_f
-          ActiveRecord::Base.connection_pool.with_connection do |conn|
-            data = AI::game_data(game0, session[:win_chain], )
-            game = Game.find(session[:game])
-            game.update_attributes(data)
-            t2 = Time.now.to_f
-            printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
-            printf "\n%s", game.inspect
-          end
-        end
-      end
-
-  def send_ai_move_retry
-    print "PARAMS: ", params
-
-    if AI.mainMultiAgent #on background thread
-      print "PARAMS: ", params
-      if params["force"] == "true"
-      puts "*****^*^*^*^*^****FORCE MOVE"
-      # puts AI.m
-      AI.mainMultiAgent.forceTimeExpire # java method to unwind minimax calls
-      end
-    end
-    @move = get_move.to_json
-
-    if @move != false
-      # respond_to do |format|
-      #   format.json { render json: move}
-      # end
-    else
-      respond_to do |format|
-        format.json { render json: {:status => "processing"}}
-      end
+  $thisThread = Thread.new do
+    t1 = Time.now.to_f
+    ActiveRecord::Base.connection_pool.with_connection do |conn|
+      data = AI.game_data(game0, session[:win_chain],)
+      game = Game.find(session[:game])
+      game.update_attributes(data)
+      t2 = Time.now.to_f
+      printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
+      printf "\n%s", game.inspect
     end
   end
-  
+end
+
+def send_ai_move_retry
+  AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
+
+    respond_to do |format|
+      format.json { render json: get_move || { status: 'processing' }}
+    end
+  end
+
   def get_move
     game = Game.find(session[:game])
     # m = game.temp_data
-    if game.status != "pending"
-      m = {:board => game.board, :win_chain_array => game.win_chain_array, :p2_moves => game.p2_moves, :coord => game.p2_moves.last, :score => game.white_score, :status => game.status}
+    if game.status != 'pending'
+      m = { board: game.board,
+           win_chain_array: game.win_chain_array,
+           p2_moves: game.p2_moves,
+           coord: game.p2_moves.last,
+           score: game.white_score,
+           status: game.status }
     end
+
     return m if m != nil
     return false
   end
@@ -155,9 +130,6 @@ class GamesController < ApplicationController
   def update
     puts params
     respond_to do |format|
-      # session[:rows] = game_params[:rows] || @rows
-      # session[:win_chain] = game_params[:win_chain] || @win_chain
-
       session[:data] = game_params
       # puts "SESSION DATA: ", session[:data]
       if @game.update(game_params)
@@ -181,11 +153,14 @@ class GamesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_game
+
       @game = Game.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params
-      params[:game].permit(:time_limit, :rows, :depth, :moves_considered, :win_chain, :defensiveness, :aggressiveness)
+      params[:game].permit(:time_limit, :rows, :depth,
+                           :moves_considered, :win_chain,
+                           :defensiveness, :aggressiveness)
     end
-end
+  end

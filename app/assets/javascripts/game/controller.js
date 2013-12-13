@@ -1,6 +1,6 @@
 GameController = function () {
 	var _this = this;
-	var view, board, menu;
+	var view, board, menu, slider;
 	var ajax = new Ajax();
 
 	var ViewDelegate;
@@ -11,6 +11,7 @@ GameController = function () {
 		view = new View(_this.delegate);
 		board = new Board();
 		menu = new Menu(_this.delegate);
+		slider = new Slider();
 		board.setRows($(".outer").data("rows"));
 
 	}
@@ -71,7 +72,12 @@ this.addPiece = function(coord, element){
 this.addWhitePiece = function (coord) {
 	console.log("COORD: " + coord);
 	_this.addPiece(coord, view.$whiteStone.clone());
-	view.squareArray[coord[0]][coord[1]].children('.white-stone').hide().fadeIn("slow");
+	view.squareArray[coord[0]][coord[1]].children('.white-stone').css({
+      opacity: 0,
+      display: 'inline-block',
+      boxShadow: '0 0 30px rgba(255, 255, 255, 0.75)'
+    	}).fadeIn("slow").animate({opacity: 1,
+    	boxShadow: '0 0 5px rgba(255, 255, 255, 0.75)'}, 750);;
 };
 
 

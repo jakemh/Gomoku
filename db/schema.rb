@@ -13,25 +13,25 @@
 
 ActiveRecord::Schema.define(version: 20131213002328) do
 
-  create_table "games", force: true do |t|
-    t.integer  "game_id"
-    t.integer  "rows"
-    t.text     "board"
-    t.integer  "current_player"
-    t.integer  "moves_considered"
-    t.integer  "depth"
-    t.integer  "win_chain"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "aggressiveness"
-    t.integer  "defensiveness"
-    t.string   "backup_move"
-    t.integer  "time_limit"
-    t.text     "temp_data"
-    t.text     "p2_moves"
-    t.integer  "white_score"
-    t.string   "status"
-    t.text     "win_chain_array"
+  create_table 'games', force: true do |t|
+    t.integer  'game_id'
+    t.integer  'rows'
+    t.text     'board'
+    t.integer  'current_player'
+    t.integer  'moves_considered'
+    t.integer  'depth'
+    t.integer  'win_chain'
+    t.datetime 'created_at'
+    t.datetime 'updated_at'
+    t.integer  'aggressiveness'
+    t.integer  'defensiveness'
+    t.string   'backup_move'
+    t.integer  'time_limit'
+    t.text     'temp_data'
+    t.text     'p2_moves'
+    t.integer  'white_score'
+    t.string   'status'
+    t.text     'win_chain_array'
   end
 
 end

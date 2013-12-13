@@ -31,18 +31,18 @@ class BoardsController < ApplicationController
     # session[:data] = {}
     # session[:data][:move_num] = 0
 
-   
+
 
   end
 
   def start_new_game
     setup_new_game
     respond_to do |format|
-       format.json {render json: {:game_id =>  session[:game]} }
+       format.json { render json: { game_id: session[:game] } }
      end
   end
 
- 
+
 
   #   puts "TEST"
   #   # respond_to do |format|
