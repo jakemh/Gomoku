@@ -97,6 +97,12 @@ var View = function (delegate) {
     for (var i = 0; i < thisData.length; i++) {
       _this.squareArray[thisData[i][0]][thisData[i][1]].children().addClass("highlight");
     }
+    
+    this.gameOver();
+
+  };
+
+  this.gameOver = function(){
     _this.removeSpinner();
     $('.force-move').css({
       opacity: 0,
@@ -104,11 +110,10 @@ var View = function (delegate) {
     }).animate({
       opacity: 1
     }, 600).text("Again?")
-
-  };
-
+  }
+  
   this.tie = function () {
-    _this.removeSpinner();
+    this.gameOver();
   };
 
 

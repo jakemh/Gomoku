@@ -11,12 +11,10 @@ GameController = function () {
 		board = new Board();
 		game = new Game(); 
 		game.setDepth($(".board").data("depth"))
+		game.setID($(".board").data("id"))
 		menu = new Menu(_this.delegate);
 		slider = new Slider(_this.delegate);
-		// alert($(".board").data("rows"))
-		// board.setRows($(".board").data("rows"));
-				board.setRows($(".outer").data("rows"));
-
+		board.setRows($(".board").data("rows"));
 	}
 	
 
@@ -121,6 +119,9 @@ this.startNewGame = function () {
 	ajax.startNewGame().done(function (data) {
 		game.setDepth(data.depth);
 
+		game.setID(data.game_id)
+		board.setRows(data.rows)
+		game.setWinChain(data.win_chain)
 		view.$outer.data({
 			"rows": data.rows,
 			"win_chain": data.win_chain,
@@ -139,7 +140,7 @@ ViewDelegate.prototype.updateDepth = function(depth){
 ViewDelegate.prototype.sendOptions = function (id, opt) {
 	var options = opt || {};
 	var sendData = $(".edit_game").serialize();
-	ajax.sendOptions(view.$outer.data("game_id"), sendData).done(function (data) {}).fail(function (data) {}).always(function (data) {
+	ajax.sendOptions(game.getID(), sendData).done(function (data) {}).fail(function (data) {}).always(function (data) {
 		view.$outer.data({
 			"rows": data.rows
 		});
@@ -199,7 +200,7 @@ this.getAIMove = function (path, count) {
 						_this.addWhitePiece(data.coord);
 						view.win(data["win_chain_array"]);
 					}else if (status == "tie"){
-						view.removeSpinner();
+						view.tie();
 					}else if (status == "error"){
 
 					}

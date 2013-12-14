@@ -99,8 +99,10 @@ module AI
     board0 = this_game.board
     board = array_grid_to_board_obj(board0, win_chain)
     p2_moves = this_game.p2_moves || []
+    puts "BOARD1"
+    board.print
 
-    return { tie: true, status: 'tie' } if board.boardFull
+    return {status: 'tie' } if board.boardFull
     return game_over(board, 0,  p2_moves.push(nil)) if board.isLose
     # board = Board.buildFromInput("gomokuproj2/input/", "3")
     movePair = move_pair(board, this_game) # getting key data
@@ -109,7 +111,7 @@ module AI
     board0[move_array[0]][move_array[1]] = 'O'
     board2 = array_grid_to_board_obj(board0, win_chain)
     board2.print
-    return  { tie: true, status: 'tie' } if board2.boardFull
+    return  {status: 'tie', board: board0, white_score: score, p2_moves: p2_moves.push(move_array) } if board2.boardFull
     return game_over(board2, 1, p2_moves.push(move_array)) if board2.isWin
     puts "NOT GAME OVER "
     return { board: board0, white_score: score, p2_moves: p2_moves.push(move_array),

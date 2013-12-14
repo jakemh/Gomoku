@@ -74,9 +74,7 @@ var Slider = function (delegate) {
          $slider.offset({top : offSetOrig.top, left : setVal});
       // $slider.width(Math.max(Math.min(dist + orig, MAX_WIDTH), MIN_WIDTH));
 
-    } else if ($slider.width() >= MAX_WIDTH) {
-      $slider.width(MAX_WIDTH);
-    }
+    } 
   }, 50));
 
 
