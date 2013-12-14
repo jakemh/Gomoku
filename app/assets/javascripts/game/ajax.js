@@ -32,7 +32,7 @@ Ajax = function () {
 		return $.ajax({
 			url: '/games/' + id + '/update',
 			type: 'put',
-			async: false,
+			async: true,
 			data: send_data,
 			// dataType: 'json',
 			beforeSend: function (xhr) {
