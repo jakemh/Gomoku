@@ -36,7 +36,7 @@ module AI
     board
   end
 
-  def self.gameOver(board, player, p2_moves)
+  def self.game_over(board, player, p2_moves)
     puts "GAME OVER"
     chain = board.sortList(board.chainLists.get(player)).get(0).getPieceCoords(board)
     chain_array = []
@@ -101,7 +101,7 @@ module AI
     p2_moves = this_game.p2_moves || []
 
     return { tie: true, status: 'tie' } if board.boardFull
-    return gameOver(board, 0,  p2_moves.push(nil)) if board.isLose
+    return game_over(board, 0,  p2_moves.push(nil)) if board.isLose
     # board = Board.buildFromInput("gomokuproj2/input/", "3")
     movePair = move_pair(board, this_game) # getting key data
     move_array = [movePair.coord.x, movePair.coord.y]
@@ -110,7 +110,7 @@ module AI
     board2 = array_grid_to_board_obj(board0, win_chain)
     board2.print
     return  { tie: true, status: 'tie' } if board2.boardFull
-    return gameOver(board2, 1, p2_moves.push(move_array)) if board2.isWin
+    return game_over(board2, 1, p2_moves.push(move_array)) if board2.isWin
     puts "NOT GAME OVER "
     return { board: board0, white_score: score, p2_moves: p2_moves.push(move_array),
              status: 'in_progress' }
