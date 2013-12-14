@@ -11,18 +11,20 @@ var Menu = function (delegate) {
   var MIN_WIDTH = 30;
   var INITIAL_WIDTH_ON_MD;
   var wasDragged;
-  var $slideLeft = $(".slide-left")
+  var $slideLeft = $(".slide-left");
+  var clickedDownOnMenu = false;
+
   $window.on("mouseup", function (p) {
-    console.log($slideLeft.width())
+    // console.log($slideLeft.width())
     dragging = false;
-    if (INITIAL_WIDTH_ON_MD - $slideLeft.width() == 0   && !$(p.target).is("input")){
+    if (clickedDownOnMenu && INITIAL_WIDTH_ON_MD - $slideLeft.width() == 0   && !$(p.target).is("input")){
       if ($slideLeft.width() > MIN_WIDTH){
       //click
       $slideLeft.animate({width: MIN_WIDTH})
     } else{
       $slideLeft.animate({width: MAX_WIDTH})
     } 
-
+    clickedDownOnMenu = false;
   }
   });
 
@@ -43,6 +45,7 @@ var Menu = function (delegate) {
 
 
   $(".slide-left").on("mousedown", function (p) {
+    clickedDownOnMenu = true;
     console.log($(this).attr('class'));
     // p.preventDefault()
     INITIAL_WIDTH_ON_MD = $(".slide-left").width()

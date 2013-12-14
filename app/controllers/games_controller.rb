@@ -64,25 +64,25 @@ class GamesController < ApplicationController
 
  end
 
- def send_ai_move
-  game0 = Game.find(session[:game])
-  game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
+  def send_ai_move
+    game0 = Game.find(session[:game])
+    game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
 
-  $thisThread = Thread.new do
-    t1 = Time.now.to_f
-    ActiveRecord::Base.connection_pool.with_connection do |conn|
-      data = AI.game_data(game0, session[:win_chain],)
-      game = Game.find(session[:game])
-      game.update_attributes(data)
-      t2 = Time.now.to_f
-      printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
-      printf "\n%s", game.inspect
+    $thisThread = Thread.new do
+      t1 = Time.now.to_f
+      ActiveRecord::Base.connection_pool.with_connection do |conn|
+        data = AI.game_data(game0, session[:win_chain],)
+        game = Game.find(session[:game])
+        game.update_attributes(data)
+        t2 = Time.now.to_f
+        printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
+        printf "\n%s", game.inspect
+      end
     end
   end
-end
 
-def send_ai_move_retry
-  AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
+  def send_ai_move_retry
+    AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
 
     respond_to do |format|
       format.json { render json: get_move || { status: 'processing' }}

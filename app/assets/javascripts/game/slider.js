@@ -8,8 +8,7 @@ var Slider = function (delegate) {
   var $slideLeft = $slider
   var moveLeft = 0; // The two variables define the distance
   var moveDown = 0;
-  var MAX_WIDTH = 300;
-  var MIN_WIDTH = 180;
+
   var INITIAL_WIDTH_ON_MD;
   var wasDragged;
   var origClick;
@@ -19,6 +18,8 @@ var Slider = function (delegate) {
   var MAX_OFFSET = 118;
   var DEFAULT = 58;
   var MIDDLE = 58;
+
+  var clickedDownOnSlider = false;
   function init(){
 
     var depth = delegate.getDepth();
@@ -48,7 +49,7 @@ var Slider = function (delegate) {
       $slider.animate({left : MIDDLE})
       delegate.updateDepth(6);
     }
-
+    clickedDownOnSlider = false;
   
   });
 
@@ -80,7 +81,7 @@ var Slider = function (delegate) {
 
 
   $(".title").on("mousedown", function (p) {
-
+    clickedDownOnSlider = true;
     mouseX = p.pageX
     origDiff = mouseX - $slider.offset().left
     console.log($slider.position().left)

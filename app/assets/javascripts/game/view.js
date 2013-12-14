@@ -28,8 +28,13 @@ var View = function (delegate) {
 
   $(".force-move").on("click", function () {
     // _this.forceMove = true;
+    if  ($(".force-move").text() == "Again?"){
+      $('.force-move').removeClass('loading-background');
+      delegate.newGame();
+    }else{
     delegate.forceMoveButton();
     $('.force-move').addClass('loading-background');
+  }
   });
 
   $(window).on("resize", function () {
@@ -88,10 +93,18 @@ var View = function (delegate) {
   };
 
   this.win = function (thisData) {
+
     for (var i = 0; i < thisData.length; i++) {
       _this.squareArray[thisData[i][0]][thisData[i][1]].children().addClass("highlight");
     }
     _this.removeSpinner();
+    $('.force-move').css({
+      opacity: 0,
+      display: 'inline-block'
+    }).animate({
+      opacity: 1
+    }, 600).text("Again?")
+
   };
 
   this.tie = function () {
@@ -117,7 +130,7 @@ var View = function (delegate) {
       display: 'inline-block'
     }).animate({
       opacity: 1
-    }, 600);
+    }, 600).text("Go!")
   };
 
   this.startSpinner = function () {
