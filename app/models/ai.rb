@@ -36,7 +36,7 @@ module AI
     board
   end
 
-  def self.game_over(board, player, p2_moves)
+  def self.gameOver(board, player, p2_moves)
     puts "GAME OVER"
     chain = board.sortList(board.chainLists.get(player)).get(0).getPieceCoords(board)
     chain_array = []
@@ -110,7 +110,7 @@ module AI
     board2 = array_grid_to_board_obj(board0, win_chain)
     board2.print
     return  { tie: true, status: 'tie' } if board2.boardFull
-    return game_over(board2, 1, p2_moves.push(move_array)) if board2.isWin
+    return gameOver(board2, 1, p2_moves.push(move_array)) if board2.isWin
     puts "NOT GAME OVER "
     return { board: board0, white_score: score, p2_moves: p2_moves.push(move_array),
              status: 'in_progress' }
