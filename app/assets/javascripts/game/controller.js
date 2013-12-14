@@ -1,18 +1,21 @@
 GameController = function () {
 	var _this = this;
-	var view, board, menu, slider;
-	var ajax = new Ajax();
+	var view, board, menu, slider, ajax, ViewDelegate, game;
+	ajax = new Ajax();
 
-	var ViewDelegate;
 	ViewDelegate = function () {};
 
 	function init(){
 		_this.delegate = new ViewDelegate();
 		view = new View(_this.delegate);
 		board = new Board();
+		game = new Game(); 
+		game.setDepth($(".board").data("depth"))
 		menu = new Menu(_this.delegate);
-		slider = new Slider();
-		board.setRows($(".outer").data("rows"));
+		slider = new Slider(_this.delegate);
+		// alert($(".board").data("rows"))
+		// board.setRows($(".board").data("rows"));
+				board.setRows($(".outer").data("rows"));
 
 	}
 	
@@ -26,7 +29,7 @@ view requires:
 	*************/
 	
 	ViewDelegate.prototype.newGame = function(){
-		game = new Game();
+		game = new Game(); 
 		board.clearPieces()
 		board.enable()
 	
@@ -110,12 +113,14 @@ this.sendHumanMove = function (opt) {
 ViewDelegate.prototype.getRows = function(){
 	return board.getRows();
 }
-ViewDelegate.prototype.getRows = function(){
-	return board.getRows();
+ViewDelegate.prototype.getDepth = function(){
+	return game.getDepth();
 }
 
 this.startNewGame = function () {
 	ajax.startNewGame().done(function (data) {
+		game.setDepth(data.depth);
+
 		view.$outer.data({
 			"rows": data.rows,
 			"win_chain": data.win_chain,
@@ -126,8 +131,12 @@ this.startNewGame = function () {
 	});
 };
 
-ViewDelegate.prototype.sendOptions = function (id, opt) {
+ViewDelegate.prototype.updateDepth = function(depth){
+	$('input[name="game[depth]"]').val(depth)
+	_this.delegate.sendOptions()
+}
 
+ViewDelegate.prototype.sendOptions = function (id, opt) {
 	var options = opt || {};
 	var sendData = $(".edit_game").serialize();
 	ajax.sendOptions(view.$outer.data("game_id"), sendData).done(function (data) {}).fail(function (data) {}).always(function (data) {

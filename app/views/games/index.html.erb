@@ -27,11 +27,12 @@
         <div class="force-move">Go!</div> 
     </div>
     <br> <br>
-
-    <div id=<%=@rows %> class="board">
-
+    <%= content_tag "div", :class => "board", :id =>  @rows, data: {depth: @depth, rows: @rows} do %>
+    
+<!--     <div id=<%=@rows %> class="board">
+ -->
       <div class="loader"> <div class="spinner-holder"> </div> </div>
-    </div>
+    <% end %>
 </div>
 
 

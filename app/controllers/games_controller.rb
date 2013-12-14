@@ -25,8 +25,7 @@ class GamesController < ApplicationController
     @moves_considered =  initVal(data['moves_considered'].to_i, 10) || Defaults::MOVES_CONSIDERED
     @aggressiveness = initVal(data['aggressiveness'].to_i, 1) || Defaults::DEFENSIVENESS
     @defensiveness =  initVal(data['defensiveness'].to_i, 1) || Defaults::AGGRESSIVENESS
-    games = Game.all
-    @game = Game.new({ game_id: (Game.all.length + 1),
+     @game = Game.new({ game_id: (Game.all.length + 1),
                       rows: @rows,
                       board: Array.new(@rows) { Array.new(@rows) { ' ' } }.transpose,
                       win_chain: @win_chain,
@@ -99,7 +98,8 @@ def send_ai_move_retry
            p2_moves: game.p2_moves,
            coord: game.p2_moves.last,
            score: game.white_score,
-           status: game.status }
+           status: game.status,
+           depth: game.depth}
     end
 
     return m if m != nil

@@ -11,8 +11,9 @@ var Menu = function (delegate) {
   var MIN_WIDTH = 30;
   var INITIAL_WIDTH_ON_MD;
   var wasDragged;
-  $slideLeft = $(".slide-left")
+  var $slideLeft = $(".slide-left")
   $window.on("mouseup", function (p) {
+    console.log($slideLeft.width())
     dragging = false;
     if (INITIAL_WIDTH_ON_MD - $slideLeft.width() == 0   && !$(p.target).is("input")){
       if ($slideLeft.width() > MIN_WIDTH){
@@ -39,7 +40,7 @@ var Menu = function (delegate) {
   }, 50));
 
 
- 
+
 
   $(".slide-left").on("mousedown", function (p) {
     console.log($(this).attr('class'));

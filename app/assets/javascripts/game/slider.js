@@ -1,10 +1,11 @@
 var Slider = function (delegate) {
   var $window = $(window);
 
-  var dragging = false;
+  var sliding = false;
   var slideMenuWidth = 10;
   var orig = 0;
   var $slider = $(".title");
+  var $slideLeft = $slider
   var moveLeft = 0; // The two variables define the distance
   var moveDown = 0;
   var MAX_WIDTH = 300;
@@ -13,19 +14,42 @@ var Slider = function (delegate) {
   var wasDragged;
   var origClick;
   var origDiff;
-  $slideLeft = $(".title")
-  $window.on("mouseup", function (p) {
-    dragging = false;
-    $slider.data({"dragging" : false});
-    if (INITIAL_WIDTH_ON_MD - $slideLeft.width() == 0   && !$(p.target).is("input")){
-      if ($slideLeft.width() > MIN_WIDTH){
-      //click
-      $slideLeft.animate({width: MIN_WIDTH})
+
+  var MIN_OFFSET = 0;
+  var MAX_OFFSET = 118;
+  var DEFAULT = 58;
+  var MIDDLE = 58;
+  function init(){
+
+    var depth = delegate.getDepth();
+    if (depth <= 4){
+      DEFAULT = 0;
+    }else if (depth >= 5 && depth <= 6){
+      DEFAULT = 58;
     } else{
-      $slideLeft.animate({width: MAX_WIDTH})
-    } 
+      DEFAULT = MAX_OFFSET;
+    }
+    $slideLeft.offset({top : $slider.offset().top, left : DEFAULT + ($slider.offset().left - $slider.position().left)});
 
   }
+
+  init();
+  var $slideLeft = $(".title")
+  $window.on("mouseup", function (p) {
+    sliding = false;
+    $slider.data({"dragging" : false});
+    if ($slider.position().left == 0){
+      delegate.updateDepth(4);
+    }else if ($slider.position().left == MAX_OFFSET){
+      delegate.updateDepth(8);
+
+    } else{
+      //animate back to center
+      $slider.animate({left : MIDDLE})
+      delegate.updateDepth(6);
+    }
+
+  
   });
 
   $window.on("mousemove", _.throttle(function (p) {
@@ -37,7 +61,7 @@ var Slider = function (delegate) {
     offsetObj = {top : offSetOrig.top, left : p.pageX - origDiff }
     var dist = $window.width() - p.pageX;
 
-    if (dragging && $slider.position().left >= 0 && $slider.position().left <= 118) {
+    if (sliding && $slider.position().left >= 0 && $slider.position().left <= 118) {
          var setVal = p.pageX - origDiff
          var gap = $slider.offset().left - $slider.position().left;
          console.log(gap);
@@ -59,7 +83,7 @@ var Slider = function (delegate) {
 
     mouseX = p.pageX
     origDiff = mouseX - $slider.offset().left
-    console.log("MOUSE: " + mouseX)
+    console.log($slider.position().left)
     origClick = $(window).width() - p.pageX;
 
     offSetOrig = $slider.offset();
@@ -73,21 +97,10 @@ var Slider = function (delegate) {
     $slider.data({"dragging" : false});
     $slider.data({"isDragging" : false});
 
-    dragging = true;
+    sliding = true;
 
     // $(window).disableSelection();
 
   });
-  $(".title").on("click", function (p) {
-    // p.preventDefault()
-    if  ($(".slide-left").width() > INITIAL_WIDTH_ON_MD){
-
-  } else{ //closing 
-
-  }
-
-
-    // $(window).disableSelection();
-
-  });
+ 
 };
