@@ -68,7 +68,7 @@ class GamesController < ApplicationController
   game0 = Game.find(session[:game])
   game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
 
-  $thisThread = Thread.new do
+  # $thisThread = Thread.new do
     t1 = Time.now.to_f
     ActiveRecord::Base.connection_pool.with_connection do |conn|
       data = AI.game_data(game0, session[:win_chain],)
@@ -78,7 +78,7 @@ class GamesController < ApplicationController
       printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
       printf "\n%s", game.inspect
     end
-  end
+  # end
 end
 
 def send_ai_move_retry
