@@ -91,6 +91,7 @@ def send_ai_move_retry
 
   def get_move
     game = Game.find(session[:game])
+    puts "GAME: ", game.inspect
     # m = game.temp_data
     if game.status != 'pending'
       m = { board: game.board,
