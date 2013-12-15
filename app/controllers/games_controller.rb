@@ -11,6 +11,7 @@ class GamesController < ApplicationController
   # GET /games/1
   # GET /games/1.json
   def show
+
   end
 
   # GET /games/new
@@ -56,7 +57,10 @@ class GamesController < ApplicationController
     setup_new_game if params['newGame'] == 'true'
 
     move = params['coord']
-    Game.find(session[:game]).add_x_at_coord([move[0], move[1]])
+    game = Game.find(session[:game])
+    game.add_x_at_coord([move[0], move[1]])
+    p1_moves = game.p1_moves || []
+    game.update_attributes(:p1_moves => p1_moves.push([move[0].to_i, move[1].to_i]))
   end
 
  def force_move
@@ -68,22 +72,20 @@ class GamesController < ApplicationController
     game0 = Game.find(session[:game])
     game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
 
-    $thisThread = Thread.new do
+    Thread.new do
       t1 = Time.now.to_f
       ActiveRecord::Base.connection_pool.with_connection do |conn|
-        data = AI.game_data(game0, session[:win_chain],)
+        data = AI.game_data(game0, session[:win_chain])
         game = Game.find(session[:game])
         game.update_attributes(data)
         t2 = Time.now.to_f
         printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
-        printf "\n%s", game.inspect
       end
     end
   end
 
   def send_ai_move_retry
     AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
-
     respond_to do |format|
       format.json { render json: get_move || { status: 'processing' }}
     end
@@ -91,7 +93,6 @@ class GamesController < ApplicationController
 
   def get_move
     game = Game.find(session[:game])
-    puts "GAME: ", game.inspect
     # m = game.temp_data
     if game.status != 'pending'
       m = { board: game.board,
@@ -101,14 +102,16 @@ class GamesController < ApplicationController
            score: game.white_score,
            status: game.status,
            depth: game.depth}
+      printf "\np1_moves: %s (%i) \np2_moves: %s (%i)", game.p1_moves, game.p1_moves.length, game.p2_moves, game.p2_moves.length
+
     end
 
     return m if m != nil
     return false
   end
+
   # GET /games/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /games
   # POST /games.json
@@ -164,4 +167,4 @@ class GamesController < ApplicationController
                            :moves_considered, :win_chain,
                            :defensiveness, :aggressiveness)
     end
-  end
+end

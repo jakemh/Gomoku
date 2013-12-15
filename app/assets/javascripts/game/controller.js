@@ -216,8 +216,11 @@ this.getAIMove = function (path, count) {
 	};
 
 	this.checkMoveCount = function(data, count, callback){
+		console.log("MOVE COUNT0: " + board.moveCount());
 		if (data.p2_moves.length > ((board.moveCount() - 1) / 2)) {
 			callback()
+			console.log("MOVE COUNT1: " + board.moveCount());
+
 		} else {
 			console.log("RETURNED WRONG MOVE, KEEP CHECKING");
 			_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);

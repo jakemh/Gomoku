@@ -5,11 +5,11 @@ var Slider = function (delegate) {
   var slideMenuWidth = 10;
   var orig = 0;
   var $slider = $(".title");
-  var $slideLeft = $slider
+  var $slideLeft = $slider;
   var moveLeft = 0; // The two variables define the distance
   var moveDown = 0;
 
-  var INITIAL_WIDTH_ON_MD;
+  var INITIAL_OFFSET_ON_MD;
   var wasDragged;
   var origClick;
   var origDiff;
@@ -35,18 +35,18 @@ var Slider = function (delegate) {
   }
 
   init();
-  var $slideLeft = $(".title")
+
   $window.on("mouseup", function (p) {
     sliding = false;
     $slider.data({"dragging" : false});
-    if ($slider.position().left == 0){
+    if ($slider.position().left == MIN_OFFSET){
       delegate.updateDepth(4);
     }else if ($slider.position().left == MAX_OFFSET){
       delegate.updateDepth(8);
 
     } else{
       //animate back to center
-      $slider.animate({left : MIDDLE})
+      $slider.animate({left : MIDDLE});
       delegate.updateDepth(6);
     }
     clickedDownOnSlider = false;
@@ -55,50 +55,40 @@ var Slider = function (delegate) {
 
   $window.on("mousemove", _.throttle(function (p) {
     p.preventDefault();
-    mouseX = p.pageX
+    mouseX = p.pageX;
     $slider.data({"isDragging" : true});
 
     offSetOrig = $slider.offset();
-    offsetObj = {top : offSetOrig.top, left : p.pageX - origDiff }
+    offsetObj = {top : offSetOrig.top, left : p.pageX - origDiff };
     var dist = $window.width() - p.pageX;
 
-    if (sliding && $slider.position().left >= 0 && $slider.position().left <= 118) {
-         var setVal = p.pageX - origDiff
+    if (sliding && $slider.position().left >= MIN_OFFSET && $slider.position().left <= MAX_OFFSET) {
+         var setVal = p.pageX - origDiff;
          var gap = $slider.offset().left - $slider.position().left;
-         console.log(gap);
-         console.log("S-G " + (setVal - gap));
-         if (setVal - gap <= 0) setVal = 0 + gap;
-         if (setVal - gap >= 119) setVal = 118 + gap;
-         // setVal = Math.max(Math.min(setVal, MAX_WIDTH), MIN_WIDTH)
-         // $slider.offset({top : offSetOrig.top, left : setVal })
+         if (setVal - gap <= MIN_OFFSET) setVal = MIN_OFFSET + gap;
+         if (setVal - gap >= MAX_OFFSET) setVal = MAX_OFFSET + gap;
          $slider.offset({top : offSetOrig.top, left : setVal});
-      // $slider.width(Math.max(Math.min(dist + orig, MAX_WIDTH), MIN_WIDTH));
-
-    } 
+    }
   }, 50));
 
 
   $(".title").on("mousedown", function (p) {
+    INITIAL_OFFSET_ON_MD = $slider.position().left;
     clickedDownOnSlider = true;
-    mouseX = p.pageX
-    origDiff = mouseX - $slider.offset().left
-    console.log($slider.position().left)
+    mouseX = p.pageX;
+    origDiff = mouseX - $slider.offset().left;
+    console.log($slider.position().left);
     origClick = $(window).width() - p.pageX;
 
     offSetOrig = $slider.offset();
     posOrig = $slider.position();
-    offsetObj = {top : offSetOrig.top, left : p.pageX }
-    // p.preventDefault()
-    var val = parseInt($(this).css("left").match(/\d+/))
-    INITIAL_WIDTH_ON_MD = $(".slide-left").width()
-
+    offsetObj = {top : offSetOrig.top, left : p.pageX };
+    INITIAL_WIDTH_ON_MD = $(".slide-left").width();
     orig = $(".title").width() - ($(window).width() - p.pageX);
     $slider.data({"dragging" : false});
     $slider.data({"isDragging" : false});
 
     sliding = true;
-
-    // $(window).disableSelection();
 
   });
  

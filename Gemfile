@@ -3,7 +3,7 @@ ruby '1.9.3', :engine => 'jruby', :engine_version => '1.7.8'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.1'
-gem 'newrelic_rpm'
+# gem 'newrelic_rpm'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3'
 
