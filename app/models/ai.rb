@@ -97,11 +97,12 @@ module AI
   def self.game_data(this_game, win_chain)
     board0 = this_game.board
     board = array_grid_to_board_obj(board0, win_chain)
+    # board = Board.buildFromInput("gomokuproj2/input/", "3")
+
     p2_moves = this_game.p2_moves || []
     board.printNoTrans
     return {status: 'tie' } if board.boardFull
     return game_over(board, 0,  p2_moves.push(nil)) if board.isLose
-    # board = Board.buildFromInput("gomokuproj2/input/", "3")
     movePair = move_pair(board, this_game) # getting key data
     move_array = [movePair.coord.x, movePair.coord.y]
 

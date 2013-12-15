@@ -15,12 +15,13 @@ var View = function (delegate) {
   this.squareArray = [];
   this.forceMove = false;
   this.timer = null;
+
   $window = $(window)
    this.$outer.data({
      "rows": _this.$board.attr('id')
    });
 
-  $(".title").on("click", function () {
+  $(".title").on("click", function (p) {
     if ($(".title").data("isDragging") != true){
     delegate.newGame();
   }
@@ -108,7 +109,7 @@ var View = function (delegate) {
       opacity: 0,
       display: 'inline-block'
     }).animate({
-      opacity: 1
+      opacity: .6
     }, 600).text("Again?")
   }
   
@@ -134,7 +135,7 @@ var View = function (delegate) {
       opacity: 0,
       display: 'inline-block'
     }).animate({
-      opacity: 1
+      opacity: .6
     }, 600).text("Go!")
   };
 

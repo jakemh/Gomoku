@@ -82,6 +82,7 @@ this.addWhitePiece = function (coord) {
 };
 
 
+
 this.addBlackPiece = function (coord) {
 	if (view.squareArray[coord[0]][coord[1]].children(".stone").length > 0) {
 	    // alert("NOT EMPTY" + squareArray[coord[0]][coord[1]].children())
@@ -217,13 +218,27 @@ this.getAIMove = function (path, count) {
 
 	this.checkMoveCount = function(data, count, callback){
 		console.log("MOVE COUNT0: " + board.moveCount());
+		if (game.getID() != data.id){
+			console.log("WRONG GAME, KEEP CHECKING");
+			_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
+			return false;
+		}
+
+		if (view.squareArray[data.coord[0]][data.coord[1]].children(".stone").length > 0) {
+	    // alert("NOT EMPTY" + squareArray[coord[0]][coord[1]].children())
+	    _this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
+	    return false;
+
+	} 
+
 		if (data.p2_moves.length > ((board.moveCount() - 1) / 2)) {
 			callback()
 			console.log("MOVE COUNT1: " + board.moveCount());
-
+			return true
 		} else {
 			console.log("RETURNED WRONG MOVE, KEEP CHECKING");
 			_this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
+			return false;
 		}
 	}
 

@@ -18,11 +18,12 @@ var Slider = function (delegate) {
   var MAX_OFFSET = 118;
   var DEFAULT = 58;
   var MIDDLE = 58;
-
+  var posHash = {4 : MIN_OFFSET, 6 : MIDDLE, 8 : MAX_OFFSET}
   var clickedDownOnSlider = false;
+  var depth;
   function init(){
 
-    var depth = delegate.getDepth();
+    depth = delegate.getDepth();
     if (depth <= 4){
       DEFAULT = 0;
     }else if (depth >= 5 && depth <= 6){
@@ -36,19 +37,35 @@ var Slider = function (delegate) {
 
   init();
 
+  $slider.on({
+      mouseenter: function() {
+         $slider.data({"onSlider" : true});
+      },
+      mouseout: function() {
+         $slider.data({"onSlider" : false});
+      }
+  });
+
   $window.on("mouseup", function (p) {
     sliding = false;
     $slider.data({"dragging" : false});
+    if ($slider.data("onSlider") == true){
     if ($slider.position().left == MIN_OFFSET){
       delegate.updateDepth(4);
+      depth = 4;
     }else if ($slider.position().left == MAX_OFFSET){
       delegate.updateDepth(8);
-
+      depth = 8;
     } else{
       //animate back to center
       $slider.animate({left : MIDDLE});
       delegate.updateDepth(6);
+      depth = 6;
     }
+  } else{
+    $slider.animate({left : posHash[depth]});
+
+  }
     clickedDownOnSlider = false;
   
   });

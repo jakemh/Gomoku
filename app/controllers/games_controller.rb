@@ -96,6 +96,7 @@ class GamesController < ApplicationController
     # m = game.temp_data
     if game.status != 'pending'
       m = { board: game.board,
+          id: game.game_id,
            win_chain_array: game.win_chain_array,
            p2_moves: game.p2_moves,
            coord: game.p2_moves.last,
