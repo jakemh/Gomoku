@@ -62,7 +62,7 @@ module AI
   end
 
   def self.get_move_pair(multiAgent, board)
-    multiAgent.negaMaxWithTimer(board, 1, 1, -999999, 999999)
+    multiAgent.negaMaxWithTimer(board)
   end
 
   def update_board

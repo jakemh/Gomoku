@@ -70,7 +70,7 @@ var Slider = function (delegate) {
   
   });
 
-  $window.on("mousemove", _.throttle(function (p) {
+  $window.on("mousemove touchmove", _.throttle(function (p) {
     p.preventDefault();
     mouseX = p.pageX;
     $slider.data({"isDragging" : true});

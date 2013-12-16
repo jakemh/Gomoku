@@ -2,31 +2,27 @@ class GamesController < ApplicationController
   include GamesHelper
   before_action :set_game, only: [:show, :edit, :update, :destroy]
 
-  # GET /games
-  # GET /games.json
   def index
     setup_new
   end
 
-  # GET /games/1
-  # GET /games/1.json
   def show
 
   end
 
-  # GET /games/new
   def setup_new
     session[:data] ||= {}
     data = session[:data]
-    @rows = initVal(data['rows'].to_i, 1) || Defaults::BOARD_SIZE_DEFAULT
-    @time_limit = initVal(data['time_limit'].to_i, 3) || Defaults::TIME_LIMIT
+    @rows = initVal(data['rows'], 1) || Defaults::BOARD_SIZE_DEFAULT
+    @time_limit = initVal(data['time_limit'], 3) || Defaults::TIME_LIMIT
 
-    @win_chain =  initVal(data['win_chain'].to_i, 2) || Defaults::CHAIN_SIZE_DEFAULT
-    @depth =  initVal(data['depth'].to_i, 2)  || Defaults::DEPTH_DEFAULT
-    @moves_considered =  initVal(data['moves_considered'].to_i, 10) || Defaults::MOVES_CONSIDERED
-    @aggressiveness = initVal(data['aggressiveness'].to_i, 1) || Defaults::DEFENSIVENESS
-    @defensiveness =  initVal(data['defensiveness'].to_i, 1) || Defaults::AGGRESSIVENESS
-     @game = Game.new({ game_id: (Game.all.length + 1),
+    @win_chain =  initVal(data['win_chain'], 2) || Defaults::CHAIN_SIZE_DEFAULT
+    @depth =  initVal(data['depth'], 2)  || Defaults::DEPTH_DEFAULT
+    @moves_considered =  initVal(data['moves_considered'], 10) || Defaults::MOVES_CONSIDERED
+    @aggressiveness = initVal(data['aggressiveness'], 0) || Defaults::AGGRESSIVENESS
+    @defensiveness =  initVal(data['defensiveness'], 0) || Defaults::DEFENSIVENESS
+    @win_chain = [@win_chain, @rows].min
+    @game = Game.new({ game_id: (Game.all.length + 1),
                       rows: @rows,
                       board: Array.new(@rows) { Array.new(@rows) { ' ' } }.transpose,
                       win_chain: @win_chain,
@@ -49,7 +45,6 @@ class GamesController < ApplicationController
       respond_to do |format|
         format.json { render json: @game, status: :created }
       end
-
     end
 
 

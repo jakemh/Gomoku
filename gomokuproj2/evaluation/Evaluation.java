@@ -11,10 +11,10 @@ public class Evaluation extends Heuristic {
     int returnVal = 0;
     int defensiveness = Constants.DEFENSIVE_COEFF;
     int aggressiveness  = Constants.AGGRESSIVE_COEFF;
-
+    Map<String, Integer> options;
     public Evaluation(Board b,  Map<String, Integer> options) {
         this.b = b;
-        
+        this.options = options;
         for (List<Chain> l : this.b.chainLists)
             for (Chain c : l)
                 c.isWinnable(b);
@@ -22,16 +22,16 @@ public class Evaluation extends Heuristic {
         this.b.sortList(this.b.chainLists.get(0));
         this.b.sortList(this.b.chainLists.get(1));
 
-//        this.aggressiveness = Helpers.getIfHas(options, "aggressiveness", Constants.AGGRESSIVE_COEFF);
-//        this.defensiveness = Helpers.getIfHas(options, "defensiveness", Constants.DEFENSIVE_COEFF);          this.defensiveness = Helpers.getIfHas(options, "defensiveness", Constants.DEFENSIVE_COEFF);
+        this.aggressiveness = Helpers.getIfHas(options, "aggressiveness", Constants.AGGRESSIVE_COEFF);
+        this.defensiveness = Helpers.getIfHas(options, "defensiveness", Constants.DEFENSIVE_COEFF);          this.defensiveness = Helpers.getIfHas(options, "defensiveness", Constants.DEFENSIVE_COEFF);
 
     }
     
     @Override /** @return **/
     public int onEvaluate() {
         
-        this.returnVal -= this.evalTopChains(b.p2(), true) * 6;
-        this.returnVal += this.evalTopChains(b.p1(), false) * Constants.AGGRESSIVE_COEFF;
+        this.returnVal -= this.evalTopChains(b.p2(), true) * this.defensiveness;
+        this.returnVal += this.evalTopChains(b.p1(), false) * this.aggressiveness;
 //       this.returnVal -= (proxToCenter());
         return this.returnVal;
     }
@@ -65,9 +65,7 @@ public class Evaluation extends Heuristic {
                 for (Chain c : b.getChainList(player)) {
                     
                     if (c.getIsWinnableCached()) {
-//                        if (c.length == 3){
-//                            tempVal += 999999;
-//                        }
+
                         if (c.length > 1){
                             int open = c.openSides(this.b);
                             int lengthDiff = b.winChainLength - c.length;

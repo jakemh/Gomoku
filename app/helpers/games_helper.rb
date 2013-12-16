@@ -1,8 +1,9 @@
 module GamesHelper
 	def initVal(value, min = 0)
-	  if value == nil || value < min
-	    return false
-	  else return value
+	  if value == nil || value.to_i < min
+	    return nil
+	  else 
+	  	return value.to_i
 	  end
 
 	end

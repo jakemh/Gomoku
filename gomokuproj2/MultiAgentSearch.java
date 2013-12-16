@@ -61,27 +61,22 @@ public class MultiAgentSearch {
         return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.WIN_SCORE);
     }
     
-    public Pair negaMaxWithTimer(Board b, int depth, int player, int alpha, int beta){
+    public Pair negaMaxWithTimer(Board b){
         final MultiAgentSearch _this = this;
-        final Timer uploadCheckerTimer = new Timer(true);
-        uploadCheckerTimer.scheduleAtFixedRate(
+        final Timer t = new Timer(true);
+        t.scheduleAtFixedRate(
                 new TimerTask() {
                     int i = 0;
-
                     public void run() {
                         i++;
                         if (i > _this.timeLimit) {
                             _this.timesUp = true;
-                            uploadCheckerTimer.cancel();
-//                            System.out.println("TIMER FINISHED: " + i);
-
+                            t.cancel();
                         }
-//                        System.out.println("TEST TIMER: " + i + " Timelimit: " + _this.timeLimit);
                     }
                 }, 0, 1000);
-//       Pair returnVal = this.minMaxAB(b, 1, 1, -9999, 9999);
         Pair returnVal = (Pair)this.negaMax(b, 1, 1, -9999, 9999, 1);
-        uploadCheckerTimer.cancel();
+        t.cancel();
         return returnVal;
     } 
       public Pair minMaxWithTimer(Board b, int depth, int player, int alpha, int beta){
