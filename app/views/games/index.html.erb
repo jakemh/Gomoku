@@ -18,7 +18,7 @@
         <div class="force-move">Go!</div> 
     </div>
     <br> <br>
-    <%= content_tag "div", :class => "board", data: {depth: @depth, rows: @rows, id: @game.game_id} do %>
+    <%= content_tag "div", :class => "board", data: {depth: @depth, rows: @rows, id: @game.game_id, win_chain: @game.win_chain} do %>
       <div class="loader"> <div class="spinner-holder"> </div> </div>
     <% end %>
 </div>

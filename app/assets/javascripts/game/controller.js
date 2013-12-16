@@ -1,6 +1,7 @@
 GameController = function () {
     var _this = this;
     var view, board, menu, slider, ajax, ViewDelegate, game;
+    var firstGame = true;
     ajax = new Ajax();
 
     ViewDelegate = function () {};
@@ -10,11 +11,14 @@ GameController = function () {
         view = new View(_this.delegate);
         board = new Board();
         game = new Game();
-        game.setDepth($(".board").data("depth"))
-        game.setID($(".board").data("id"))
+
+        game.setDepth($(".board").data("depth"));
+        game.setID($(".board").data("id"));
+        game.setWinChain($(".board").data("id"));
+        board.setRows($(".board").data("rows"));
+
         menu = new Menu(_this.delegate);
         slider = new Slider(_this.delegate);
-        board.setRows($(".board").data("rows"));
     }
 
 
@@ -27,17 +31,24 @@ view requires:
 	*************/
 
     ViewDelegate.prototype.newGame = function () {
-        game = new Game();
         board.clearPieces()
         board.enable()
 
         view.clearMenuTextBox();
-        _this.startNewGame();
-        view.removeSpinner();
-        view.$board.empty();
+
+        if (!firstGame){
+        	game = new Game();
+       		_this.startNewGame();
+       		view.removeSpinner();
+       		view.$board.empty();
+    	}
+
+       
         view.squareArray = new Array(board.getRows());
         view.renderBoard(board.getRows());
         view.addLoader();
+        firstGame = false;
+
     };
 
     ViewDelegate.prototype.forceMoveButton = function () {
@@ -121,7 +132,6 @@ view requires:
     this.startNewGame = function () {
         ajax.startNewGame().done(function (data) {
             game.setDepth(data.depth);
-
             game.setID(data.game_id)
             board.setRows(data.rows)
             game.setWinChain(data.win_chain)
@@ -239,11 +249,11 @@ view requires:
     };
 
     this.checkIfImpossibleMove = function (data) {
-        if (view.squareArray[data.coord[0]][data.coord[1]].children(".stone").length == 0) {
+        if (view.squareArray[data.coord[0]][data.coord[1]].children(".stone").length === 0) {
             return true;
 
         }
-        console.log("NOT EMPTY" + squareArray[coord[0]][coord[1]].children())
+        console.log("NOT EMPTY" + squareArray[coord[0]][coord[1]].children());
         return false;
     };
 
