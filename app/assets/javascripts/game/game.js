@@ -25,6 +25,6 @@ var Game = function (id) {
 	}
 
 	this.getWinChain = function(){
-		return _winChain
+		return parseInt(_winChain);
 	}
 };

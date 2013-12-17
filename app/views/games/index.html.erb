@@ -1,3 +1,4 @@
+<div class="board-adj"></div>
 <div  class="outer">
     <div class="slide-left">
         <div class="slide-left-text">  <%= render 'slide_menu' %> </div>
@@ -18,7 +19,13 @@
         <div class="force-move">Go!</div> 
     </div>
     <br> <br>
-    <%= content_tag "div", :class => "board", data: {depth: @depth, rows: @rows, id: @game.game_id, win_chain: @game.win_chain} do %>
+
+    <%= content_tag "div", :class => "board", data: {
+        depth: @depth, 
+        rows: @rows, 
+        id: @game.game_id, 
+        win_chain: @win_chain
+        } do %>
       <div class="loader"> <div class="spinner-holder"> </div> </div>
     <% end %>
 </div>

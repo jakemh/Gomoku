@@ -1,6 +1,6 @@
 GameController = function () {
     var _this = this;
-    var view, board, menu, slider, ajax, ViewDelegate, game;
+    var view, board, menu, slider, ajax, ViewDelegate, game, scrollball;
     var firstGame = true;
     ajax = new Ajax();
 
@@ -14,11 +14,13 @@ GameController = function () {
 
         game.setDepth($(".board").data("depth"));
         game.setID($(".board").data("id"));
-        game.setWinChain($(".board").data("id"));
+        game.setWinChain($(".board").data("win-chain"));
         board.setRows($(".board").data("rows"));
 
         menu = new Menu(_this.delegate);
         slider = new Slider(_this.delegate);
+        scrollball = new ScrollBall(_this.delegate);
+
     }
 
 
@@ -108,6 +110,7 @@ view requires:
 
     };
 
+
     this.sendHumanMove = function (opt) {
         options = opt || {};
         view.forceMove = false;
@@ -128,13 +131,31 @@ view requires:
     ViewDelegate.prototype.getDepth = function () {
         return game.getDepth();
     }
+    ViewDelegate.prototype.getWinChain = function () {
+        return game.getWinChain();
+    }
+
+    ViewDelegate.prototype.changePos = function(){
+        var rows =  _this.delegate.getRows() + 1;
+        _this.delegate.updateRows(rows);
+        view.$board.empty();
+        view.renderBoard(rows);
+    }
+    ViewDelegate.prototype.changeNeg = function(){
+        var rows =  _this.delegate.getRows() - 1;
+        if (rows >= 3){
+            _this.delegate.updateRows(rows);
+            view.$board.empty();
+            view.renderBoard(rows);
+        }
+    }
 
     this.startNewGame = function () {
         ajax.startNewGame().done(function (data) {
             game.setDepth(data.depth);
-            game.setID(data.game_id)
-            board.setRows(data.rows)
-            game.setWinChain(data.win_chain)
+            game.setID(data.game_id);
+            board.setRows(data.rows);
+            game.setWinChain(data.win_chain);
             view.$outer.data({
                 "rows": data.rows,
                 "win_chain": data.win_chain,
@@ -149,7 +170,10 @@ view requires:
         $('input[name="game[depth]"]').val(depth)
         _this.delegate.sendOptions()
     }
-
+    ViewDelegate.prototype.updateRows = function (rows) {
+        $('input[name="game[rows]"]').val(rows)
+        _this.delegate.sendOptions()
+    }
     ViewDelegate.prototype.sendOptions = function (id, opt) {
         var options = opt || {};
         var sendData = $(".edit_game").serialize();
@@ -188,36 +212,35 @@ view requires:
     };
 
     this.aiMoveCallback = function (data, count) {
-        xmlhttp = new XMLHttpRequest();
+        // xmlhttp = new XMLHttpRequest();
         if (data !== null) {
             console.log(data);
             if (data["status"] !== undefined) {
                 var status = data["status"];
                 console.log(status)
-                // view.textBox.text(status + "\n" + view.textBox.val())
                 if (status == "in_progress") {
                     if (_this.validateMove(data, count)) {
                         _this.addWhitePiece(data.coord);
+                        console.log("MOVE COUNT: " + board.moveCount());
                         board.enable();
                         view.removeSpinner();
-                        view.textBox.text("White: " + JSON.stringify(data.coord) + "\n" + view.textBox.val())
-
-
-                    } else {
+                        // view.textBox.text("White: " + JSON.stringify(data.coord) + "\n" + view.textBox.val())
+                    } else { //something is wrong with data so check again 
                         _this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
-                        return false;
                     }
-                } else if (status == "processing") {
+                } else if (status == "processing") { //move not ready yet
                     _this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
-                } else if (status == "established") {
+                } else if (status == "established") { //first ajax response
                     _this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
                 } else if (status == "black_winner") {
-                    view.win(data["win_chain_array"]);
+                    _this.win(data["win_chain_array"]);
                 } else if (status == "white_winner") {
                     _this.addWhitePiece(data.coord);
-                    view.win(data["win_chain_array"]);
+                    _this.win(data["win_chain_array"]);
+                    // view.win(data["win_chain_array"]);
                 } else if (status == "tie") {
-                    view.tie();
+
+                    _this.tie();
                 } else if (status == "error") {
 
                 }
@@ -231,6 +254,26 @@ view requires:
             _this.getAIMoveWithTimer('/get_ai_move_retry/', count + 1);
         }
     };
+
+    this.win = function (thisData) {
+      for (var i = 0; i < thisData.length; i++) {
+        view.squareArray[thisData[i][0]][thisData[i][1]].children().addClass("highlight");
+      }
+      
+      _this.gameOver();
+
+    };
+
+    this.tie = function () {
+
+      _this.gameOver();
+    };
+
+    this.gameOver = function(){
+      view.removeSpinner();
+      view.fadeInTopRightButton("Again?")
+    }
+
 
     this.checkMoveCount = function (data) {
         if (data.p2_moves.length > ((board.moveCount() - 1) / 2)) {
@@ -258,13 +301,11 @@ view requires:
     };
 
     this.validateMove = function (data, count, callback) {
-        console.log("MOVE COUNT0: " + board.moveCount());
         if (this.checkMoveCount(data) &&
             this.checkGameID(data) &&
             this.checkIfImpossibleMove(data)) {
             return true;
         }
-        console.log("MOVE COUNT1: " + board.moveCount());
 
         return false;
 

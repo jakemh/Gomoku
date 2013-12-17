@@ -92,26 +92,6 @@ var View = function (delegate) {
     $(".square").width(varWidth / rows);
     $(".square").height($(".square").width());
   };
-
-  this.win = function (thisData) {
-
-    for (var i = 0; i < thisData.length; i++) {
-      _this.squareArray[thisData[i][0]][thisData[i][1]].children().addClass("highlight");
-    }
-    
-    this.gameOver();
-
-  };
-
-  this.gameOver = function(){
-    _this.removeSpinner();
-    $('.force-move').css({
-      opacity: 0,
-      display: 'inline-block'
-    }).animate({
-      opacity: .6
-    }, 600).text("Again?")
-  }
   
   this.tie = function () {
     this.gameOver();
@@ -129,14 +109,20 @@ var View = function (delegate) {
     $('.force-move').fadeOut();
   };
 
-  var appendForceButton = function () {
-    $('.force-move').removeClass('loading-background');
+  this.fadeInTopRightButton = function(text){
     $('.force-move').css({
       opacity: 0,
       display: 'inline-block'
     }).animate({
       opacity: .6
-    }, 600).text("Go!")
+    }, 600).text(text)
+  }
+
+  var appendForceButton = function () {
+
+    $('.force-move').removeClass('loading-background');
+    _this.fadeInTopRightButton("Go!")
+
   };
 
   this.startSpinner = function () {
