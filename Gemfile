@@ -3,16 +3,11 @@ ruby '1.9.3', :engine => 'jruby', :engine_version => '1.7.8'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.1'
-# gem 'newrelic_rpm'
-# Use sqlite3 as the database for Active Record
-# gem 'sqlite3'
-
-# gem 'thin'
-# gem 'puma'
 gem 'trinidad'
 # gem 'jdbcsqlite3'# Use SCSS for stylesheets
 group :development, :test do
 	gem 'activerecord-jdbcsqlite3-adapter'
+	gem 'rspec-rails'
 end
 group :production do
 	gem 'activerecord-jdbcpostgresql-adapter'

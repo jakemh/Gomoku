@@ -16,22 +16,22 @@ var Slider = function (delegate) {
 
   var MIN_OFFSET = 0;
   var MAX_OFFSET = 118;
-  var DEFAULT = 58;
+  var default_val = 58;
   var MIDDLE = 58;
-  var posHash = {4 : MIN_OFFSET, 6 : MIDDLE, 8 : MAX_OFFSET}
+  var posHash = {4 : MIN_OFFSET, 6 : MIDDLE, 8 : MAX_OFFSET};
   var clickedDownOnSlider = false;
   var depth;
-  function init(){
 
+  function init(){
     depth = delegate.getDepth();
     if (depth <= 4){
-      DEFAULT = 0;
+      default_val = MIN_OFFSET;
     }else if (depth >= 5 && depth <= 6){
-      DEFAULT = 58;
+      default_val = MIDDLE;
     } else{
-      DEFAULT = MAX_OFFSET;
+      default_val = MAX_OFFSET;
     }
-    $slideLeft.offset({top : $slider.offset().top, left : DEFAULT + ($slider.offset().left - $slider.position().left)});
+    $slideLeft.offset({top : $slider.offset().top, left : default_val + ($slider.offset().left - $slider.position().left)});
 
   }
 
@@ -90,7 +90,6 @@ var Slider = function (delegate) {
 
 
   $(".title").on("mousedown", function (p) {
-    INITIAL_OFFSET_ON_MD = $slider.position().left;
     clickedDownOnSlider = true;
     mouseX = p.pageX;
     origDiff = mouseX - $slider.offset().left;
@@ -100,7 +99,6 @@ var Slider = function (delegate) {
     offSetOrig = $slider.offset();
     posOrig = $slider.position();
     offsetObj = {top : offSetOrig.top, left : p.pageX };
-    INITIAL_WIDTH_ON_MD = $(".slide-left").width();
     orig = $(".title").width() - ($(window).width() - p.pageX);
     $slider.data({"dragging" : false});
     $slider.data({"isDragging" : false});

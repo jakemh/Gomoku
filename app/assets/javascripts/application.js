@@ -17,7 +17,6 @@
 //=require ./game/timer
 //=require ./game/game
 //=require ./game/controller
-//=require ./game/view-delegate
 //=require ./game/board
 //=require ./game/menu
 //=require ./game/slider

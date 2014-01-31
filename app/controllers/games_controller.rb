@@ -1,5 +1,4 @@
 class GamesController < ApplicationController
-  include GamesHelper
   before_action :set_game, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -10,19 +9,23 @@ class GamesController < ApplicationController
 
   end
 
+  # called when new game is set up 
+
   def setup_new
     session[:data] ||= {}
     data = session[:data]
-    @rows = initVal(data['rows'], 1) || Defaults::BOARD_SIZE_DEFAULT
-    @time_limit = initVal(data['time_limit'], 3) || Defaults::TIME_LIMIT
 
-    @win_chain =  initVal(data['win_chain'], 2) || Defaults::CHAIN_SIZE_DEFAULT
-    @depth =  initVal(data['depth'], 2)  || Defaults::DEPTH_DEFAULT
-    @moves_considered =  initVal(data['moves_considered'], 10) || Defaults::MOVES_CONSIDERED
-    @aggressiveness = initVal(data['aggressiveness'], 0) || Defaults::AGGRESSIVENESS
-    @defensiveness =  initVal(data['defensiveness'], 0) || Defaults::DEFENSIVENESS
+    # use init_val to set min values (2nd param) -- if less than min, return nil
+    # necessary to make sure there are no values of nil off the bat AND that values are valid
+    @rows = validate(data['rows'], 1) || Defaults::BOARD_SIZE_DEFAULT
+    @time_limit = validate(data['time_limit'], 3) || Defaults::TIME_LIMIT
+    @win_chain =  validate(data['win_chain'], 2) || Defaults::CHAIN_SIZE_DEFAULT
+    @depth =  validate(data['depth'], 2)  || Defaults::DEPTH_DEFAULT
+    @moves_considered =  validate(data['moves_considered'], 10) || Defaults::MOVES_CONSIDERED
+    @aggressiveness = validate(data['aggressiveness'], 0) || Defaults::AGGRESSIVENESS
+    @defensiveness =  validate(data['defensiveness'], 0) || Defaults::DEFENSIVENESS
     @win_chain = [@win_chain, @rows].min
-    @game = Game.new({ game_id: (Game.all.length + 1),
+    @game = Game.new({ 
                       rows: @rows,
                       board: Array.new(@rows) { Array.new(@rows) { ' ' } }.transpose,
                       win_chain: @win_chain,
@@ -33,19 +36,18 @@ class GamesController < ApplicationController
                       aggressiveness: @aggressiveness })
 
     @game.save
-    session[:game] = @game.game_id
-       # session[:data] = {}
-       session[:data][:move_num] = 0
+    @game.update_attributes({game_id: @game.id})
+    session[:game] = @game.id
+    session[:data][:move_num] = 0
+    session[:win_chain] = @win_chain
+  end
 
-       session[:win_chain] = @win_chain
-     end
-
-     def new
-      setup_new
-      respond_to do |format|
-        format.json { render json: @game, status: :created }
-      end
+  def new
+    setup_new
+    respond_to do |format|
+      format.json { render json: @game, status: :created }
     end
+  end
 
 
   def receive_human_move
@@ -70,7 +72,7 @@ class GamesController < ApplicationController
     Thread.new do
       t1 = Time.now.to_f
       ActiveRecord::Base.connection_pool.with_connection do |conn|
-        data = AI.game_data(game0, session[:win_chain])
+        data = Gomoku::AI.get_response_data(game0)
         game = Game.find(session[:game])
         game.update_attributes(data)
         t2 = Time.now.to_f
@@ -80,7 +82,7 @@ class GamesController < ApplicationController
   end
 
   def send_ai_move_retry
-    AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
+    Gomoku::AI.mainMultiAgent.forceTimeExpire if time_expired?(params)
     respond_to do |format|
       format.json { render json: get_move || { status: 'processing' }}
     end
@@ -90,8 +92,8 @@ class GamesController < ApplicationController
     game = Game.find(session[:game])
     # m = game.temp_data
     if game.status != 'pending'
-      m = { board: game.board,
-          id: game.game_id,
+      game_data = { board: game.board,
+          id: game.id,
            win_chain_array: game.win_chain_array,
            p2_moves: game.p2_moves,
            coord: game.p2_moves.last,
@@ -102,8 +104,8 @@ class GamesController < ApplicationController
 
     end
 
-    return m if m != nil
-    return false
+    return game_data if game_data != nil
+    false
   end
 
   # GET /games/1/edit

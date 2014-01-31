@@ -18,14 +18,6 @@ var Board = function () {
 		return _rows;
 	}
 
-	this.getSquare = function(x,y){
-
-	};
-
-	this.squareEmpty = function(x, y){
-
-	};
-
 	this.boardEmpty = function(){
 		if (_pieceArray.length === 0){
 			return true;
@@ -44,19 +36,27 @@ var Board = function () {
 		_pieceArray.push(element);
 	};
 
-	this.addWhitePiece = function(){
-
-	};
-
-	this.addBlackPiece = function(){
-
-	};
-
 	this.enable = function(){
 		_active = true;
 	};
 
 	this.disable = function(){
 		_active = false;
+	};
+
+	// these are not implemented yet
+	this.getSquare = function(x,y){
+
+	};
+
+	this.squareEmpty = function(x, y){
+
+	};
+	this.addWhitePiece = function(){
+
+	};
+
+	this.addBlackPiece = function(){
+
 	};
 };
