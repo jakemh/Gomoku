@@ -37,11 +37,6 @@ public class MultiAgentSearch {
     }
     public MultiAgentSearch(Board b, Map<String, Integer> options) {
         
-           System.out.println("VERSION: " + "0.0.0.155");
-//            System.out.println("***options***: " + options.toString());
-            
-            
-//        this.board = new Board(Constants.BOARD_SIZE_DEFAULT, Constants.CHAIN_SIZE_DEFAULT);
           this.board = b;
           this.options = options;
           this.timeLimit = Helpers.getIfHas(options, "timeLimit", Constants.TIME_LIMIT);
@@ -49,15 +44,10 @@ public class MultiAgentSearch {
           this.maxDepth = Helpers.getIfHas(options, "maxDepth", Constants.DEPTH_DEFAULT);
           this.movesConsidered = Helpers.getIfHas(options, "movesConsidered", Constants.MOVES_CONSIDERED);
           this.winChain = Helpers.getIfHas(options, "winChain", Constants.CHAIN_SIZE_DEFAULT);
-//        this.board = Board.buildFromInput("3");
     }
     
   
     public  Pair getBestMove(int player){
-//        int depth = options.get("depth");
-//        int movesConsidered = options.get("movesConsidered");
-//        int winChain = options.get("winChain");
-//        MultiAgentSearch m = new MultiAgentSearch(b, options);
         return this.minMaxAB(board, 1, player, Constants.LOSE_SCORE, Constants.WIN_SCORE);
     }
     
@@ -91,10 +81,8 @@ public class MultiAgentSearch {
                         if (i > _this.timeLimit) {
                             _this.timesUp = true;
                             uploadCheckerTimer.cancel();
-//                            System.out.println("TIMER FINISHED: " + i);
 
                         }
-//                        System.out.println("TEST TIMER: " + i + " Timelimit: " + _this.timeLimit);
                     }
                 }, 0, 1000);
        Pair returnVal = this.minMaxAB(b, 1, 1, -9999, 9999);
@@ -116,15 +104,12 @@ public class MultiAgentSearch {
         
         int bestVal = Integer.MIN_VALUE;
         Tuple bestMove = null;
-        //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
         List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
-//        System.out.println(legalMoves.toString());
-//        List<Tuple> legalMoves = this.getLegalMoves(b);
+        galMoves = this.getLegalMoves(b);
 
         for (int i = 0; i < legalMoves.size(); i++) {
             Pair moveScore = legalMoves.get(i);
             Tuple move = moveScore.coord;
-//            Tuple move = legalMoves.get(i);
             Board nextState = this.getSuccessor(b, move, player);
 
             int val = -(int)negaMax(nextState, depth + 1, (player + 1) % 2, -beta, -alpha, -color);
@@ -142,10 +127,8 @@ public class MultiAgentSearch {
             if (bestMove == null) {
                 bestVal = 0;
                 bestMove = this.getLegalMoves(b).get(0);
-                System.out.println("*CHOOSING RANDOM MOVE FROM NEGAMAX*");
             }
 
-//            System.out.println("NEGAMAX MOVE: " + bestMove);
             return new Pair(bestVal, bestMove);
         }
         
@@ -159,16 +142,14 @@ public class MultiAgentSearch {
         
         int bestVal = Integer.MIN_VALUE;
         Tuple bestMove = null;
-        //        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
         List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
-//        System.out.println(legalMoves.toString());
-//        List<Tuple> legalMoves = this.getLegalMoves(b);
+     
         for (int i = 0; i < legalMoves.size(); i++) {
             Pair moveScore = legalMoves.get(i);
             Tuple move = moveScore.coord;
-//            Tuple move = legalMoves.get(i);
             int score;
             Board nextState = this.getSuccessor(b, move, player);
+          
             if (i != 0){
                 score = -(int)negaScout(nextState, depth + 1, (player + 1) % 2, -alpha - 1, -alpha, -color);
                 if (alpha < score && score < beta){
@@ -196,7 +177,6 @@ public class MultiAgentSearch {
                 System.out.println("*CHOOSING RANDOM MOVE FROM NEGAMAX*");
             }
 
-//            System.out.println("NEGAMAX MOVE: " + bestMove);
             return new Pair(alpha, bestMove);
         }
         
@@ -210,18 +190,13 @@ public class MultiAgentSearch {
         }
         Pair val = player == b.currentPlayer ? new Pair(Integer.MIN_VALUE, null) : new Pair(Integer.MAX_VALUE, null);
 
-
-//        for (Pair moveScore : this.topLegalMoves(b, player, Constants.MOVES_CONSIDERED)) {
         List<Pair> legalMoves = this.topLegalMoves(b, player, this.movesConsidered, depth);
-//        System.out.println(legalMoves.toString());
-//        List<Tuple> legalMoves = this.getLegalMoves(b);
 
         for (int i = 0; i < legalMoves.size(); i++){
             Pair moveScore = legalMoves.get(i);
             Tuple move = moveScore.coord;
-//           Tuple move = legalMoves.get(i);
-//        for (Tuple move : this.getLegalMoves(b)){
             Board nextState = this.getSuccessor(b, move, player);
+         
             if (player == b.currentPlayer) {
                 Pair v = minMaxAB(nextState, depth +1 , (player + 1) % 2, alpha, beta);
                
@@ -242,27 +217,8 @@ public class MultiAgentSearch {
             }
         }
         
-        if (depth == 1){
-//            System.out.println("RANGE: " + Arrays.toString(b.relevantRange));
-//                System.out.println(b.chainLists.get(0));
-//                System.out.println(b.chainLists.get(1));
-//
-//                for (Chain c0 : b.chainLists.get(0)) {
-//                    System.out.println("Chain: " + c0);
-//                    System.out.println("Is Winnable: " + c0.isWinnable(b));
-//                    System.out.println("Open sides: " + c0.openSides(b));
-//
-//                }
-//
-//                for (Chain c1 : b.chainLists.get(1)) {
-//                    System.out.println("Chain: " + c1);
-//                    System.out.println("Is Winnable: " + c1.isWinnable(b));
-//                    System.out.println("Open sides: " + c1.openSides(b));
-//
-//                }
-        }
+
         if (val.coord == null) val.score = 0;
-//        System.out.println("val: " + val);
         return val;
 
     }
@@ -272,18 +228,7 @@ public class MultiAgentSearch {
         Board boardCopy = new Board(b);
         GamePiece newPiece = boardCopy.addPiece(move, player);
         boardCopy.parent = b;
-//        if (boardCopy.currentPlayer == 1 && player == boardCopy.p1() && new Random().nextInt(101) % 100 == 0){
-//            boardCopy.print();
-//            System.out.println("X: " + boardCopy.chainLists.get(0).toString());
-//            System.out.println(")O: " + boardCopy.chainLists.get(1).toString());
-//            if (!boardCopy.chainLists.get(1).isEmpty())
-//                System.out.println("st: " + boardCopy.chainLists.get(1).get(0).player);
-//
-//            int score = Heuristic.evaluate(boardCopy);
-//            System.out.println("score: " + score);
 
-//        }
-        
         return boardCopy;
     }
 
@@ -299,7 +244,6 @@ public class MultiAgentSearch {
 
                 Pair pair = new Pair(score, c);
                 tempOBoard.heuristicCache = score;
-//                System.out.println("pair: " + pair);
                 return pair;
             }
         });
@@ -310,7 +254,6 @@ public class MultiAgentSearch {
            int cutVal = l.size() > quant ? quant : l.size();
 
             if (depth == 1){
-//                System.out.println("TEST: " + l.toString());
             }
         Collections.sort(l, new Comparator<Pair>() {
             @Override
@@ -382,17 +325,13 @@ public class MultiAgentSearch {
             Pair pair;
             if (firstMove){
                  pair = new Pair(0, new Tuple((this.board.rows) / 2, (this.board.rows) / 2));
-//                move =  new Tuple((this.board.rows) / 2, (this.board.rows) / 2);
                  firstMove = false;
             } else
-//               pair = this.minMaxAB(this.board, 1, player, -9999, 9999);
                   pair = (Pair)this.negaMax(this.board, 1, player, -99999, 99999, 1);
-//                  pair = (Pair)this.negaScout(this.board, 1, player, -99999, 99999, 1);
 
                 System.out.println("Pair: " + pair + " expanded: " + Constants.counter);
             Constants.counter = 0;
             this.board.addPiece(pair.coord, player);
-//            this.board.addPiece(move, player);
             this.board.print();
             player = (player + 1) % 2;
             this.board.currentPlayer = player;
@@ -411,7 +350,6 @@ public class MultiAgentSearch {
         } else {
             System.out.print("Enter move (ex.[2,5]): ");
             String moveString = br.readLine();
-//            String moveString = moveInput;
             String[] resultsUnformatted = moveString.split(","), moveCoords = new String[2];
             for (int i = 0; i < 2; i++) {
                 moveCoords[i] = resultsUnformatted[i].replaceAll("(\\W)", "");
