@@ -19,7 +19,6 @@ public final class Chain {
         this.dir = dir;
         this.player = head.player;
         this.length = length;
-//        this.dir = this.head.coord.minus(this.tail.coord);
     }
 
     public Chain(Chain oldC) {
