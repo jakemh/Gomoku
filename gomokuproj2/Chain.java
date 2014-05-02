@@ -19,7 +19,6 @@ public final class Chain {
         this.dir = dir;
         this.player = head.player;
         this.length = length;
-//        this.dir = this.head.coord.minus(this.tail.coord);
     }
 
     public Chain(Chain oldC) {
@@ -102,13 +101,12 @@ public final class Chain {
         return winnable;
     }
     
-    //for efficiency -- important to make sure isWinnable runs each time a piece is added
     public boolean getIsWinnableCached(){
             return this._isWinnableCache;
     }
     
     public boolean isWinnable(Board b) {
-//        return this.openSides(b) != 0;
+
         if (this.length > 1) {
             this._isWinnableCache = this.winnableInner(b, this.dir);
             return this._isWinnableCache;

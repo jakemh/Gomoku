@@ -102,7 +102,6 @@ public class Board extends GameGrid {
         if (coord.y > max.y - rl) {
             this.relevantRange[3] = Math.min(coord.y + rl, this.rows);
         }
-//        System.out.println("POST: " + Arrays.toString(this.relevantRange));
 
     }
     int maxChain(int player) {
@@ -117,21 +116,11 @@ public class Board extends GameGrid {
     }
 
     public boolean isLose() {
-//        if (this.chainLists.get(this.p2()).size() > 0) {
-//            if (this.chainLists.get(this.p2()).get(0).length == winChainLength) {
-//                return true;
-//            }
-//        }
-//        return false;
         return this._lose;
     }
 
     public boolean isWin() {
-//        if (this.chainLists.get(this.p1()).size() > 0) {
-//            return this.chainLists.get(this.p1()).get(0).length == winChainLength;
-//        } else {
-//            return false;
-//        }
+
         return this._win;
     }
 
@@ -203,7 +192,6 @@ public class Board extends GameGrid {
                 deleteChain = c;
                 break;
             } else{
-//                c.isWinnable(this);
             }
         }
         if (deleteChain != null) {
@@ -212,7 +200,6 @@ public class Board extends GameGrid {
 
         l.add(newC);
         newC.isWinnable(this);
-//        this.sortList(l);
     }
 
     void setMaxChains(List<GamePiece> chain) {

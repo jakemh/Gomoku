@@ -86,6 +86,7 @@ module Gomoku
       end
     end
 
+    # returns status + relevant game state 
     def self.get_response_data(this_game)
       p this_game
       board0 = this_game.board
@@ -100,7 +101,7 @@ module Gomoku
       # we can safely return function before expensive move_pair is called
       
       # condition: tie after p2 move
-      return {status: 'tie' } if board.boardFull
+      return { status: 'tie' } if board.boardFull
 
       # condition: p1 loses
       return game_over(board, 0,  p2_moves.push(nil)) if board.isLose

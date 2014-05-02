@@ -69,7 +69,7 @@ class GamesController < ApplicationController
     game0 = Game.find(session[:game])
     game0.update_attributes({ temp_data: nil, backup_move: nil, status: 'pending' })
 
-    Thread.new do
+    # Thread.new do
       t1 = Time.now.to_f
       ActiveRecord::Base.connection_pool.with_connection do |conn|
         data = Gomoku::AI.get_response_data(game0)
@@ -78,7 +78,7 @@ class GamesController < ApplicationController
         t2 = Time.now.to_f
         printf "\nElapsed time: %s seconds ", (t2 - t1).round(2)
       end
-    end
+    # end
   end
 
   def send_ai_move_retry
